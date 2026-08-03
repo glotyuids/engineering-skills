@@ -1,0 +1,16 @@
+{
+  "name": "cloud-yandex",
+  "description": "Capability-to-service mapping and production traps for Yandex Cloud.",
+  "version": "0.1.0",
+  "author": {
+    "name": "glotyuids",
+    "url": "https://github.com/glotyuids/engineering-skills"
+  },
+  "license": "Apache-2.0",
+  "keywords": [
+    "skills",
+    "engineering",
+    "agents",
+    "cloud-yandex"
+  ]
+}

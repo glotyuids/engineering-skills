@@ -1,0 +1,16 @@
+{
+  "name": "frontend",
+  "description": "Design-system authoring, internationalisation and Playwright end-to-end testing.",
+  "version": "0.1.0",
+  "author": {
+    "name": "glotyuids",
+    "url": "https://github.com/glotyuids/engineering-skills"
+  },
+  "license": "Apache-2.0",
+  "keywords": [
+    "skills",
+    "engineering",
+    "agents",
+    "frontend"
+  ]
+}

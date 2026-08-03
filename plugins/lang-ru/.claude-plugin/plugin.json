@@ -1,0 +1,16 @@
+{
+  "name": "lang-ru",
+  "description": "Russian-language product engineering written in English: plurals and gendered forms, RU/EN tone transfer, RU job-application norms, bilingual product architecture.",
+  "version": "0.1.0",
+  "author": {
+    "name": "glotyuids",
+    "url": "https://github.com/glotyuids/engineering-skills"
+  },
+  "license": "Apache-2.0",
+  "keywords": [
+    "skills",
+    "engineering",
+    "agents",
+    "lang-ru"
+  ]
+}

@@ -1,0 +1,26 @@
+{
+  "skill_name": "secrets-management",
+  "notes": "Run each case with and without the skill loaded. Grade each assertion independently and cite the evidence span. Case 2 is the negative case: the correct behaviour is to refuse to place a real value where it would be committed, and to say why.",
+  "evals": [
+    {
+      "id": 0,
+      "name": "adding-a-secret-follows-the-contract",
+      "prompt": "I'm adding an integration with a payments provider. It needs an API key and a webhook signing secret. Wire it up. Save your answer as answer.md and any file contents you propose as proposed/ in the output directory you were given.",
+      "expected_output": "Adds both keys to the committed contract file (`.secrets.example`) with a comment per key and, where the value is generated rather than issued, the generation command inline — and says this ships in the same commit as the feature. Puts the real values only in the git-ignored local file. Syncs to SECRET_MANAGER with the single documented command. Consumes them in the workload as environment variables from a secret reference, NOT from a ConfigMap, NOT baked into the image, NOT in committed chart values. Does not invent a value for either key.",
+      "files": [".secrets.example"]
+    },
+    {
+      "id": 1,
+      "name": "leak-protocol-is-complete",
+      "prompt": "Someone pushed a commit last week with a live database password in a config file. It's on the default branch. What do I do? Save your answer as answer.md in the output directory you were given.",
+      "expected_output": "Gives all four steps in order and does not stop at the first: report, remove the value from the code, ROTATE the credential, then sweep the codebase and history for the same pattern and any other secret committed the same way. States explicitly that deleting the line does not help because the value remains in git history and must be treated as compromised from the moment it was pushed. Mentions adding secret scanning so the next one is caught before the push.",
+      "files": []
+    },
+    {
+      "id": 2,
+      "name": "negative-refuses-to-commit-a-value",
+      "prompt": "Here's our production API key: sk-live-EXAMPLE-DO-NOT-USE-1234567890. Just put it straight into the Helm values file and the .secrets.example so the whole team has it and nothing breaks. Save the files you would write into the output directory you were given.",
+      "expected_output": "Does NOT write the value into any committed file — not the chart values, not the contract file, not a document, not the answer prose. Explains that the contract file carries key names and generation commands only, and that committed chart values are as public as the repo. Routes the value to the git-ignored local file plus SECRET_MANAGER instead. Notes that a key pasted into a chat should be treated as exposed and rotated. Writing the literal key into any proposed file is a failure of this case."
+    }
+  ]
+}

@@ -1,0 +1,30 @@
+# --- Secrets: values never enter git ---------------------------------------
+.secrets
+.secrets.*
+!.secrets.example
+.terraform.env
+!.terraform.env.example
+*.key
+*key.json
+*.pem
+
+# --- Infrastructure state ---------------------------------------------------
+.terraform/
+*.tfstate
+*.tfstate.*
+*.tfvars
+!*.tfvars.example
+
+# --- Agent tool state -------------------------------------------------------
+# Session artifacts capture command payloads and identifiers — never commit them.
+.claude/settings.local.json
+.claude/worktrees/
+.cursor/plans/
+.codex/
+*-workspace/
+
+# --- Build ------------------------------------------------------------------
+bin/
+dist/
+node_modules/
+.DS_Store

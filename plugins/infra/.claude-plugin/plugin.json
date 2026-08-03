@@ -1,0 +1,16 @@
+{
+  "name": "infra",
+  "description": "Build/deploy pipeline, Terraform, Ansible, Kubernetes/Helm, Makefiles and secrets \u2014 written against capabilities, not a cloud provider.",
+  "version": "0.1.0",
+  "author": {
+    "name": "glotyuids",
+    "url": "https://github.com/glotyuids/engineering-skills"
+  },
+  "license": "Apache-2.0",
+  "keywords": [
+    "skills",
+    "engineering",
+    "agents",
+    "infra"
+  ]
+}

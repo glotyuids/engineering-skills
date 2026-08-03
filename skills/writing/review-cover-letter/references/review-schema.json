@@ -1,0 +1,129 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://example.com/skills/review-cover-letter/review-schema.json",
+  "title": "CoverLetterReview",
+  "description": "Versioned scorecard emitted by the review-cover-letter skill. Findings are fix-ready: each fix_instruction is an imperative for a downstream rewriter. A check that could not be evaluated because an input was missing is reported with status 'unverifiable' — never omitted and never passed.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "inputs_seen",
+    "detected_params",
+    "scores",
+    "findings",
+    "claim_audit",
+    "overall_verdict",
+    "summary",
+    "fix_brief"
+  ],
+  "properties": {
+    "schema_version": { "type": "string", "const": "1.0" },
+    "case_id": { "type": "string", "description": "Optional id when run in batch mode. Must not encode personal data." },
+    "inputs_seen": {
+      "type": "array",
+      "description": "Exactly what the reviewer was given. Never list an input that was not actually provided.",
+      "items": { "enum": ["message", "posting", "cv", "declared_params"] },
+      "uniqueItems": true,
+      "minItems": 1
+    },
+    "inputs_missing": {
+      "type": "array",
+      "description": "Recommended inputs that were absent. Every entry here must be traceable to at least one finding with status 'unverifiable'.",
+      "items": { "enum": ["posting", "cv", "declared_params"] },
+      "uniqueItems": true
+    },
+    "detected_params": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "The parametric frame (rules.md section 0). A value that could not be inferred is 'unknown', and every rule gated on it is skipped rather than guessed.",
+      "required": ["channel", "locale_mode", "instruction_mode", "seniority", "candidate_story", "industry_mode", "truth_mode"],
+      "properties": {
+        "channel": { "enum": ["formal_letter", "portal_note", "questions_plus_note", "board_chat_followup", "speculative_letter", "email_cold", "email_warm", "network_connect_note", "network_inmail", "messenger_dm", "post_apply_dm", "unknown"] },
+        "locale_mode": { "type": "string", "description": "Market/language tag such as ru_RU, en_US, en_UK_EU, or 'unknown'.", "pattern": "^([a-z]{2}(_[A-Za-z_]+)?|unknown)$" },
+        "instruction_mode": { "enum": ["none", "explicit_question", "keyword_gate", "availability_gate", "salary_gate", "portfolio_gate", "relocation_gate", "unknown"] },
+        "relationship_temperature": { "enum": ["cold", "warm", "referred", "internal", "post_apply", "unknown"] },
+        "seniority": { "enum": ["junior", "mid", "senior_ic", "lead_manager", "executive", "unknown"] },
+        "candidate_story": { "enum": ["standard", "career_change", "gap_return", "no_direct_experience", "overqualified", "step_up", "unknown"] },
+        "industry_mode": { "enum": ["tech", "creative", "corporate_finance_ops", "mass_blue_collar", "academic", "unknown"] },
+        "proof_assets": {
+          "type": "array",
+          "items": { "enum": ["metrics", "portfolio", "github", "case_studies", "certs", "education_only", "none"] },
+          "uniqueItems": true
+        },
+        "tone_register": { "enum": ["formal", "warm_professional", "concise_direct", "enthusiastic", "chat_brief", "unknown"] },
+        "cta_strength": { "enum": ["none", "soft", "specific_low_friction", "unknown"] },
+        "truth_mode": { "enum": ["strict_resume_only", "resume_plus_job_post", "resume_plus_user_context", "unknown"] }
+      }
+    },
+    "scores": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["instruction", "tailoring", "evidence", "length", "register", "cta", "honesty"],
+      "description": "Per-category roll-up. fail = a critical or high in the category; warn = only medium, or any unverifiable finding; pass = only low findings and nothing degraded. PD-* rolls up under honesty.",
+      "properties": {
+        "instruction": { "$ref": "#/$defs/scoreValue" },
+        "tailoring": { "$ref": "#/$defs/scoreValue" },
+        "evidence": { "$ref": "#/$defs/scoreValue" },
+        "length": { "$ref": "#/$defs/scoreValue" },
+        "register": { "$ref": "#/$defs/scoreValue" },
+        "cta": { "$ref": "#/$defs/scoreValue" },
+        "honesty": { "$ref": "#/$defs/scoreValue" }
+      }
+    },
+    "findings": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/finding" }
+    },
+    "claim_audit": {
+      "type": "array",
+      "description": "Every factual claim in the message, classified against the honesty boundary (rules.md section 6).",
+      "items": { "$ref": "#/$defs/claim" }
+    },
+    "overall_verdict": {
+      "enum": ["block", "revise", "send_ready"],
+      "description": "block = any critical finding; revise = no critical but at least one high, at least one unverifiable, or three or more medium; send_ready = only low/medium polish, no unverifiable, and every recommended input present."
+    },
+    "summary": {
+      "type": "string",
+      "description": "One or two sentences: the decisive problems and the highest-leverage fix. Must name any missing input that limited the review."
+    },
+    "fix_brief": {
+      "type": "array",
+      "description": "Ordered must-fix imperatives (critical + high, most-blocking first) — ready to append to a rewriter prompt. Never contains rewritten letter text.",
+      "items": { "type": "string" }
+    }
+  },
+  "$defs": {
+    "scoreValue": { "enum": ["pass", "warn", "fail"] },
+    "severity": { "enum": ["critical", "high", "medium", "low"] },
+    "finding": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["rule_id", "rule", "severity", "status", "evidence", "why", "fix_instruction"],
+      "properties": {
+        "rule_id": { "type": "string", "description": "Stable rule id from rules.md, e.g. INSTR-1, PROOF-2, HON-1. Project-specific rules use their own prefix.", "pattern": "^[A-Z]+-[0-9]+$" },
+        "rule": { "type": "string", "description": "Short rule name, e.g. instruction_first." },
+        "severity": { "$ref": "#/$defs/severity" },
+        "status": {
+          "enum": ["pass", "warn", "fail", "unverifiable"],
+          "description": "unverifiable = the check could not be evaluated because an input was missing; carries severity 'high' and blocks send_ready without forcing block."
+        },
+        "evidence": { "type": "string", "description": "Verbatim offending span; \"<absent>\" when a required element is missing; \"<whole message>\" when the finding is about the message as a whole; \"<not provided: cv>\" style when the finding is unverifiable." },
+        "why": { "type": "string", "description": "One line: what is wrong." },
+        "fix_instruction": { "type": "string", "description": "Imperative for a rewriter: name the span and the target form. For an unverifiable finding, name the input that would settle it." },
+        "param": { "type": "string", "description": "Optional: the detected parameter that triggered or escalated this rule, e.g. instruction_mode=keyword_gate." }
+      }
+    },
+    "claim": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["claim", "bucket"],
+      "properties": {
+        "claim": { "type": "string", "description": "Verbatim claim from the message." },
+        "bucket": { "enum": ["evidence_backed", "safe_inference", "forbidden_fabrication", "unverifiable"] },
+        "note": { "type": "string", "description": "Why this bucket: which source fact backs it, or what is missing." },
+        "rule_id": { "type": "string", "pattern": "^[A-Z]+-[0-9]+$" }
+      }
+    }
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "name": "llm",
+  "description": "Safety rules for LLM pipelines, MCP server authoring and skill authoring.",
+  "version": "0.1.0",
+  "author": {
+    "name": "glotyuids",
+    "url": "https://github.com/glotyuids/engineering-skills"
+  },
+  "license": "Apache-2.0",
+  "keywords": [
+    "skills",
+    "engineering",
+    "agents",
+    "llm"
+  ]
+}

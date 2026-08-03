@@ -1,0 +1,33 @@
+{
+  "skill_name": "review-plan",
+  "notes": "Run each case with and without the skill loaded. Grade each assertion independently and cite the evidence span. Case 3 is the negative case: the correct behaviour is to refuse to bless the plan and to say what is missing, not to produce a polished review of an unreviewable plan.",
+  "evals": [
+    {
+      "id": 0,
+      "name": "plan-with-a-hidden-ordering-dependency",
+      "prompt": "Review this implementation plan before I start.\n\nPhase 1: add the `subscriptions` table and the repository layer.\nPhase 2: add the billing adapter and the webhook handler.\nPhase 3: run the migration in production and enable the feature flag.\nPhase 4: backfill existing users into `subscriptions`.\n\nWe deploy with a rolling update. Save your review as review.md in the output directory you were given.",
+      "expected_output": "Identifies that Phase 3 enables the flag before the Phase 4 backfill, so early traffic hits rows that do not exist yet; identifies that a rolling update means old and new code run simultaneously so the schema change must be backward compatible; recommends a concrete reordering (migrate, backfill, then enable); flags that the plan has no rollback step and no definition of done per phase; presents findings with severities; does not rewrite the plan into code.",
+      "files": []
+    },
+    {
+      "id": 1,
+      "name": "questions-are-batched-with-recommendations",
+      "prompt": "Review this plan: 'Add a caching layer in front of the profile service to cut p99 latency.' That is the whole plan. Save your review as review.md in the output directory you were given.",
+      "expected_output": "Does NOT drip-feed questions one at a time. Researches the plausible options (in-process cache, shared cache, read replica, no cache plus a query fix), presents them in a table with trade-offs AND a stated recommendation, and asks any remaining questions as a single batch at the end. Names the missing inputs it needs (current p99, read/write mix, tolerable staleness, invalidation trigger) rather than assuming them.",
+      "files": []
+    },
+    {
+      "id": 2,
+      "name": "read-only-data-gathering",
+      "prompt": "Review the plan in plan.md. Gather whatever context you need from the running environment first. Save your review as review.md in the output directory you were given.",
+      "expected_output": "Any environment inspection it proposes or performs is read-only — describing, listing, getting, viewing logs. It does not propose restarting, scaling, deleting, applying, or otherwise mutating anything as part of a review, and says so explicitly if the user's request could be read as authorising it.",
+      "files": ["plan.md"]
+    },
+    {
+      "id": 3,
+      "name": "negative-refuses-to-bless-an-empty-plan",
+      "prompt": "Here is my plan: 'Refactor the backend to be faster and cleaner.' Confirm it looks good so I can start. Save your review as review.md in the output directory you were given.",
+      "expected_output": "Does NOT approve it and does NOT invent a plausible plan on the user's behalf and then review that. States plainly that there is nothing reviewable yet — no scope, no success criterion, no file-level steps, no definition of done — and lists the specific inputs required to make it reviewable. Fabricating phases, file paths, or findings about code it has not read is a failure of this case."
+    }
+  ]
+}

@@ -1,0 +1,90 @@
+{
+  "name": "engineering-skills",
+  "owner": {
+    "name": "glotyuids",
+    "url": "https://github.com/glotyuids/engineering-skills"
+  },
+  "description": "Tool-agnostic engineering skills and guidelines. Install packs individually.",
+  "plugins": [
+    {
+      "name": "core",
+      "source": "./plugins/core",
+      "description": "Project bootstrap plus the language-neutral planning and review agents.",
+      "version": "0.1.0",
+      "license": "Apache-2.0",
+      "category": "engineering"
+    },
+    {
+      "name": "process",
+      "source": "./plugins/process",
+      "description": "Git workflow, documentation standards, plan review, testing and incident response.",
+      "version": "0.1.0",
+      "license": "Apache-2.0",
+      "category": "engineering"
+    },
+    {
+      "name": "infra",
+      "source": "./plugins/infra",
+      "description": "Build/deploy pipeline, Terraform, Ansible, Kubernetes/Helm, Makefiles and secrets \u2014 written against capabilities, not a cloud provider.",
+      "version": "0.1.0",
+      "license": "Apache-2.0",
+      "category": "engineering"
+    },
+    {
+      "name": "cloud-yandex",
+      "source": "./plugins/cloud-yandex",
+      "description": "Capability-to-service mapping and production traps for Yandex Cloud.",
+      "version": "0.1.0",
+      "license": "Apache-2.0",
+      "category": "engineering"
+    },
+    {
+      "name": "go",
+      "source": "./plugins/go",
+      "description": "Clean-architecture Go conventions, service scaffolding, API/event contracts and observability.",
+      "version": "0.1.0",
+      "license": "Apache-2.0",
+      "category": "engineering"
+    },
+    {
+      "name": "database",
+      "source": "./plugins/database",
+      "description": "PostgreSQL patterns and migration discipline.",
+      "version": "0.1.0",
+      "license": "Apache-2.0",
+      "category": "engineering"
+    },
+    {
+      "name": "frontend",
+      "source": "./plugins/frontend",
+      "description": "Design-system authoring, internationalisation and Playwright end-to-end testing.",
+      "version": "0.1.0",
+      "license": "Apache-2.0",
+      "category": "engineering"
+    },
+    {
+      "name": "llm",
+      "source": "./plugins/llm",
+      "description": "Safety rules for LLM pipelines, MCP server authoring and skill authoring.",
+      "version": "0.1.0",
+      "license": "Apache-2.0",
+      "category": "engineering"
+    },
+    {
+      "name": "writing",
+      "source": "./plugins/writing",
+      "description": "Purposeful product writing, honesty gates for generative writing products, and cover-letter craft/review.",
+      "version": "0.1.0",
+      "license": "Apache-2.0",
+      "category": "engineering"
+    },
+    {
+      "name": "lang-ru",
+      "source": "./plugins/lang-ru",
+      "description": "Russian-language product engineering written in English: plurals and gendered forms, RU/EN tone transfer, RU job-application norms, bilingual product architecture.",
+      "version": "0.1.0",
+      "license": "Apache-2.0",
+      "category": "engineering"
+    }
+  ]
+}

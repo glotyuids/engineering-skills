@@ -1,0 +1,28 @@
+name: validate
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Validate skills (spec, manifest, content policy)
+        run: ./scripts/validate.sh
+
+      - name: Check the installer runs
+        run: |
+          mkdir -p /tmp/probe/.claude
+          ./scripts/install.sh /tmp/probe --packs core --tools claude --dry-run
+
+      - name: Secret scan
+        uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

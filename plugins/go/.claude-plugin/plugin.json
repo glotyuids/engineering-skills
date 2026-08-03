@@ -1,0 +1,16 @@
+{
+  "name": "go",
+  "description": "Clean-architecture Go conventions, service scaffolding, API/event contracts and observability.",
+  "version": "0.1.0",
+  "author": {
+    "name": "glotyuids",
+    "url": "https://github.com/glotyuids/engineering-skills"
+  },
+  "license": "Apache-2.0",
+  "keywords": [
+    "skills",
+    "engineering",
+    "agents",
+    "go"
+  ]
+}

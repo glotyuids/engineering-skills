@@ -1,0 +1,22 @@
+# Never commit secret material or tool session state
+.secrets
+.secrets.*
+!.secrets.example
+.terraform.env
+*key.json
+
+# Tool state directories capture command payloads and identifiers
+.claude/settings.local.json
+.claude/worktrees/
+.codex/
+.cursor/plans/
+
+# Eval run transcripts
+*-workspace/
+
+.DS_Store
+node_modules/
+
+# Working analysis of private repositories — kept locally, never published
+PLAN.md
+INVENTORY.md
