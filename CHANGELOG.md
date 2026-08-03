@@ -21,3 +21,11 @@ All notable changes to this library. Versions follow the library `version` in
 - `frontend/react-conventions` 0.1.0 → 0.1.1: added the missing "Forms" section (controlled
   inputs, validation timing, submit-in-flight guarding, field-level server errors,
   labelling) that the skill's description already promised; sections renumbered accordingly.
+- `lang-ru/ru-ui-strings` 0.1.0 → 0.1.1: the worked example is now an invented carpooling
+  app throughout (glossary, plural tables, enum-agreement and casing examples); same
+  grammar, no real-product domain.
+- `process/documentation-standards` 0.1.0 → 0.1.1: the `Relates to:` illustration now uses
+  arbitrary ADR numbers.
+- `scripts/validate.py`: patterns that are themselves private (project names, namespaces)
+  moved out of the public source into git-ignored `scripts/private-patterns.txt`, loaded
+  when present. CI keeps every generic check.

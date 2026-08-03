@@ -4,7 +4,7 @@ description: Writing and engineering Russian interface strings, in English. Cove
 license: Apache-2.0
 metadata:
   source: glotyuids/engineering-skills
-  version: 0.1.0
+  version: 0.1.1
 ---
 
 # Russian UI strings
@@ -153,13 +153,13 @@ Rules that follow:
 it produces broken text at specific counts nobody hand-checks.
 
 ```ts
-// WRONG — encodes English grammar at the call site: renders «5 собаки», never «5 собак».
-const label = count === 1 ? "собака" : "собаки";
-// WRONG — suffix surgery on an inflected stem: «собака» + «и» is not a word.
-const label = t("dog") + (count === 1 ? "" : "и");
+// WRONG — encodes English grammar at the call site: renders «5 поездки», never «5 поездок».
+const label = count === 1 ? "поездка" : "поездки";
+// WRONG — suffix surgery on an inflected stem: «поездка» + «и» is not a word.
+const label = t("trip") + (count === 1 ? "" : "и");
 
 // RIGHT — the call site passes a number; the catalogue owns the grammar.
-const label = t("zone.dogsNearby", { count });
+const label = t("trips.nearbyCount", { count });
 ```
 
 The categories, and why there are three of them — the numeral governs the **case** of
@@ -167,9 +167,9 @@ everything it counts:
 
 | CLDR category | Rule | Counted noun form | Example |
 |---|---|---|---|
-| `one` | `n % 10 == 1` and `n % 100 != 11` | nominative singular | «1 собака» |
-| `few` | `n % 10` in 2–4 and `n % 100` not in 12–14 | genitive singular | «2 собаки» |
-| `many` | everything else, including 0 | genitive plural | «5 собак» |
+| `one` | `n % 10 == 1` and `n % 100 != 11` | nominative singular | «1 поездка» |
+| `few` | `n % 10` in 2–4 and `n % 100` not in 12–14 | genitive singular | «2 поездки» |
+| `many` | everything else, including 0 | genitive plural | «5 поездок» |
 | `other` | non-integers | genitive singular | «2,5 часа» |
 
 ```ts
@@ -187,16 +187,16 @@ The mod-100 exception is the part everyone gets wrong:
 
 | count | category | rendered |
 |---|---|---|
-| 1, 21, 101 | `one` | «21 собака» |
-| 2, 3, 4, 22 | `few` | «22 собаки» |
-| 0, 5–20, 25 | `many` | «11 собак», «0 собак» |
-| **11, 12, 13, 14** | **`many`** | «12 собак» — a naive mod-10 rule says `one`/`few` here |
+| 1, 21, 101 | `one` | «21 поездка» |
+| 2, 3, 4, 22 | `few` | «22 поездки» |
+| 0, 5–20, 25 | `many` | «11 поездок», «0 поездок» |
+| **11, 12, 13, 14** | **`many`** | «12 поездок» — a naive mod-10 rule says `one`/`few` here |
 | 111, 112 | `many` | the exception is on mod 100, so it recurs every hundred |
 
 Rules that fall out:
 
 - **Store the whole sentence per category, not just the noun.** The verb agrees too:
-  «1 собака гуляет» / «2 собаки гуляют» / «5 собак гуляют». A catalogue that pluralizes only
+  «1 поездка найдена» / «2 поездки найдены» / «5 поездок найдены». A catalogue that pluralizes only
   the noun and concatenates the rest is broken at `one`.
 - **`.other` must exist even though no integer selects it.** Fractions use it — Russian writes
   the decimal with a comma: «2,5 часа» (genitive singular, like `few`). It is also the
@@ -208,9 +208,9 @@ Rules that fall out:
 - **Test 0, 1, 2, 5, 11, 21 and 111 at minimum.** A bug that only appears at 11 survives every
   hand-check that stops at three.
 - **Zero is a grammar question, not a product one.** Russian puts 0 in `many`. If the product
-  wants «Никого рядом» instead of «0 собак рядом», that is a *different key* chosen by the call
+  wants «Рядом пока пусто» instead of «0 поездок рядом», that is a *different key* chosen by the call
   site, never a fourth branch inside the plural.
-- Spelled-out numerals inflect for case and (for one and two) gender — «одна собака», «два
+- Spelled-out numerals inflect for case and (for one and two) gender — «одна поездка», «два
   дня» / «две недели». Do not spell numerals out inside interpolated frames; render digits.
 
 ## 4. A glossary, so one concept is always one word
@@ -219,15 +219,15 @@ Russian offers several plausible words for most product nouns, and two contribut
 choose two of them in the same week. Write the mapping down beside the catalogue and treat it
 as binding — an off-glossary synonym is a review comment, not a matter of taste.
 
-The shape of that mapping, illustrated on a made-up dog-walking app:
+The shape of that mapping, illustrated on a made-up carpooling app:
 
 | Concept | Term | Applies to |
 |---|---|---|
-| walk | «прогулка» | tab title, statuses, empty states |
+| trip | «поездка» | tab title, statuses, empty states |
 | route | «маршрут» | map labels, saved-items list |
-| zone | «зона» | map, privacy copy, discovery |
-| owner | «хозяин» | profiles, block/report copy |
-| group | «стая» — a deliberate coinage for the product's own concept | tab name, group screens, invitations |
+| pickup point | «точка встречи» | map, notifications |
+| driver | «водитель» | profiles, trip cards |
+| crew | «экипаж» — a deliberate coinage for the product's recurring ride group | tab name, group screens, invitations |
 
 - **Fix the product's own concept nouns first** — the tab name, the object the app is about.
   Those drift hardest because they appear everywhere and everyone paraphrases them.
@@ -246,9 +246,9 @@ The shape of that mapping, illustrated on a made-up dog-walking app:
 Attribute labels are adjectives, and an adjective is written to agree with one specific noun:
 
 ```ts
-// These agree with a FEMININE noun («собака» / «энергия»).
-"enums.energy.calm": "Спокойная",
-"enums.size.small":  "Маленькая",
+// These agree with a FEMININE noun («машина» / «поездка»).
+"enums.ride.quiet":   "Тихая",
+"enums.car.compact":  "Компактная",
 ```
 
 Reuse the same value beside a masculine or neuter noun and the agreement is wrong: «Спокойная
@@ -270,11 +270,11 @@ nouns all inflect, and you cannot inflect them at runtime with string surgery.
 
 ```ts
 // WRONG — the frame demands the dative; the value arrives nominative.
-"dogs.sendingRequestTo": "Отправляем запрос {{name}}"   // → «Отправляем запрос Мария»
+"trips.sendingRequestTo": "Отправляем запрос {{name}}"   // → «Отправляем запрос Мария»
 
 // RIGHT — restructure so the value sits in the nominative.
-"dogs.sendingRequestTo": "Запрос отправляется · {{name}}"
-"dogs.sendingRequestTo": "Кому отправляем запрос: {{name}}"
+"trips.sendingRequestTo": "Запрос отправляется · {{name}}"
+"trips.sendingRequestTo": "Кому отправляем запрос: {{name}}"
 ```
 
 - **Design frames that keep interpolated values in the nominative**: put them after a colon,
@@ -311,7 +311,7 @@ nouns only.
 
 | Wrong | Right |
 |---|---|
-| «Завершить Прогулку» | «Завершить прогулку» |
+| «Завершить Поездку» | «Завершить поездку» |
 | «Настройки Уведомлений» | «Настройки уведомлений» |
 | «Мои Сохранённые Маршруты» | «Мои сохранённые маршруты» |
 

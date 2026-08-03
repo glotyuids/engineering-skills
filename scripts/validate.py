@@ -32,11 +32,20 @@ POLICY = [
     (r"/home/[a-z]", "absolute local path"),
     (r"\b(?:\d{1,3}\.){3}\d{1,3}\b", "IP address"),
     (r"\bcat[a-z0-9]{18,}\b", "cloud resource id"),
-    (r"-n\s+(?:quiz-online|coverletterbot|packwalk)\b", "real namespace"),
-    (r"\b(?:quiz-online|coverletterbot|packwalk|kotvmeshke)\b", "real project name"),
     (r"\byc-[a-z0-9-]+-cluster\b", "real cluster context"),
     (r"(?i)\b(?:AKIA|ghp_|sk-[a-zA-Z0-9]{20,}|qmcp_)", "credential-shaped token"),
 ]
+# Additional patterns that must never appear but are themselves private (real project
+# names, namespaces, hosts) live in scripts/private-patterns.txt — git-ignored, one
+# regex per line, '#' comments. The file exists only on machines that need it; CI runs
+# without it and still applies every generic pattern above.
+_private = ROOT / "scripts" / "private-patterns.txt"
+if _private.exists():
+    POLICY += [
+        (line.strip(), "private pattern")
+        for line in _private.read_text(encoding="utf-8").splitlines()
+        if line.strip() and not line.lstrip().startswith("#")
+    ]
 # The changelog may name a skill version that mentions a provider in passing.
 POLICY_EXEMPT = {"CHANGELOG.md"}
 

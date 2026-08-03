@@ -4,7 +4,7 @@ description: What gets documented, where it lives, and the discipline that keeps
 license: Apache-2.0
 metadata:
   source: glotyuids/engineering-skills
-  version: 0.1.0
+  version: 0.1.1
 ---
 
 # Documentation standards — the tree, the routing, and the truth discipline
@@ -116,8 +116,8 @@ Relates to: ADR-XXXX (<why>), <document> (<why>)   # optional, one line each
   incident, say so on the Status line: `Proposed (YYYY-MM-DD; from the <date> <review name>)`.
   The reader then knows what evidence to weigh.
 - **`Relates to:` is a real section, not decoration.** Name the ADRs this one extends,
-  narrows or contradicts, and say in a clause why. This is how a reader of ADR-0060 learns
-  that ADR-0056 applies the same doctrine to docs instead of code.
+  narrows or contradicts, and say in a clause why. This is how a reader of ADR-0041 learns
+  that ADR-0037 applies the same doctrine to docs instead of code.
 - **Context states the alternatives that were live**, including the ones rejected, and the
   constraint that decided between them. "Two common mechanisms exist: (a) …, or (b) …" is
   the useful form. Context without an alternative is a description, not a decision record.

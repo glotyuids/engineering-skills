@@ -20,3 +20,4 @@ node_modules/
 # Working analysis of private repositories — kept locally, never published
 PLAN.md
 INVENTORY.md
+scripts/private-patterns.txt
