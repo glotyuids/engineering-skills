@@ -1,10 +1,10 @@
 ---
 name: database-migrations
-description: How to write, run and recover schema migrations without downtime or a stuck deploy — file naming and the up/down pair, one logical change per migration, forward-only in production, statements written so a partial re-run is safe, the JSONB null/scalar trap, lock-avoidance on large tables (concurrent indexes, nullable column then batched backfill then constraint), expand/contract for renames during a rolling deploy, migrations as a pre-upgrade hook Job, and the recovery procedure when a migration job times out and leaves the version tracker dirty. Use when the user says "add a migration", "write the up/down SQL", "alter this table", "add a column/index/constraint", "rename a column", "backfill this data", "the migration job timed out", "migrations are dirty", "schema_migrations is stuck", "the deploy is blocked on migrations", "how do I roll back a migration", "this migration locked the table", or when reviewing a migration before it ships.
+description: How to write, run and recover schema migrations without downtime or a stuck deploy — file naming and the up/down pair, one logical change per migration, forward-only in production, statements written so a partial re-run is safe, the JSONB null/scalar trap, lock-avoidance on large tables (concurrent indexes, nullable column then batched backfill then constraint), expand/contract for renames during a rolling deploy, migrations as a pre-upgrade hook Job, and the recovery procedure when a migration job times out and leaves the version tracker dirty. Use when the user says "add a migration", "write the up/down SQL", "alter this table", "add a column/index/constraint", "rename a column", "backfill this data", "the migration job timed out", "migrations are dirty", "schema_migrations is stuck", "the deploy is blocked on migrations", "how do I roll back a migration", "this migration locked the table", "create a role in a migration", "the policy fails on re-run", or when reviewing a migration before it ships.
 license: Apache-2.0
 metadata:
   source: glotyuids/engineering-skills
-  version: 0.1.0
+  version: 0.1.1
 ---
 
 # Database migrations
@@ -107,6 +107,19 @@ BEGIN
 END $$;
 ```
 
+- Row-security policies have **no** `IF NOT EXISTS` form in any PostgreSQL release. Make
+  the pair re-runnable by dropping first — both statements run inside the migration's
+  transaction, so no reader ever sees the table without its policy:
+
+```sql
+DROP POLICY IF EXISTS <table>_owner_isolation ON <table>;
+CREATE POLICY <table>_owner_isolation ON <table>
+    USING      (owner_id = NULLIF(current_setting('app.owner_id', true), '')::uuid)
+    WITH CHECK (owner_id = NULLIF(current_setting('app.owner_id', true), '')::uuid);
+```
+
+  The policy's content belongs to `postgres-patterns`; the drop-then-create shape is what
+  survives a re-run. Roles need the same care (§7).
 - **Backfill `UPDATE`s must be safe to re-run.** Constrain them to rows that still need the
   change, so a second run is a no-op instead of a double application:
 
@@ -283,6 +296,38 @@ the migration itself:
 - The job must be a **Job**, not an init container on the Deployment: an init container runs
   once per pod, so N replicas race, and it re-runs on every restart.
 
+### Cluster-wide objects: roles
+
+A role belongs to the cluster, not to the database the migration runs in. Two
+consequences:
+
+- **Default: provision roles with the database, not in migrations.** The application role,
+  the migrator role and any maintenance role are created in the same earlier step that
+  creates the database and its grants (first rule above) — by the infrastructure layer,
+  where a `terraform-conventions` skill applies if installed. A migration then only
+  `GRANT`s on the objects it created.
+- **When a per-database migration must create a role** — a single-database deployment, a
+  local test cluster — it needs the `CREATEROLE` privilege, it must survive a concurrent
+  creator, and its `down` never drops the role, because another database may already
+  depend on it:
+
+```sql
+DO $$
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM pg_roles WHERE rolname = '<app_role>') THEN
+        CREATE ROLE <app_role> NOLOGIN;
+    END IF;
+EXCEPTION
+    WHEN duplicate_object THEN NULL;   -- created by another migrator between the check and the CREATE
+END $$;
+```
+
+  The exception handler is the real guard; the existence check only narrows the race. Do
+  not rely on the migration tool's advisory lock here — **advisory locks are local to one
+  database**, so migrators for two databases on the same cluster never see each other's
+  lock. If two such migrators must be serialised, take an explicit `pg_advisory_xact_lock`
+  in a database both connect to, or run them one after the other in the pipeline.
+
 ## 8. Recovery: the migration job timed out and the state is dirty
 
 Version-table tools (the `schema_migrations` version-plus-`dirty`-flag family) mark the
@@ -345,6 +390,8 @@ from a developer machine against production without recording what was done.
       deploy timeout it has to fit in.
 - [ ] `up → down → up` proven on a scratch database in CI.
 - [ ] The down migration's data loss, if any, is stated in a comment.
+- [ ] Policies are drop-then-create; any role creation carries the duplicate-object guard,
+      and no `down` drops a role.
 
 ## Project delta
 
@@ -360,5 +407,8 @@ The consuming repo supplies:
 - The deploy sequence position of migrations, the release timeout, and the flag that gates
   the migration Job.
 - Batch size and pacing for backfills, and where the loop is driven from.
-- Whether tables are user-owned and require a row-security block in the creating migration.
+- Whether tables are owner-scoped (per user, tenant or organisation) and require a
+  row-security block in the creating migration.
+- Whether roles are provisioned by infrastructure or by a migration, and the migrator's
+  privileges (`CREATEROLE` or not).
 - The environments a migration must pass through before production.

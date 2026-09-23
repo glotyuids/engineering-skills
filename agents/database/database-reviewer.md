@@ -33,7 +33,7 @@ psql -c "SELECT indexrelname, idx_scan FROM pg_stat_user_indexes ORDER BY idx_sc
 - `FOR UPDATE SKIP LOCKED` for DB-backed work-queue patterns.
 
 ### MEDIUM — Schema hygiene
-- Types: `bigint`/IDENTITY (or UUIDv7) for IDs, `text` over `varchar(n)` without reason, `timestamptz` (never bare `timestamp`), `numeric` for money, `boolean` for flags.
+- Types: `bigint`/IDENTITY (or UUIDv7) for IDs, `text` over `varchar(n)` without reason, `timestamptz` (never bare `timestamp`), `numeric` or integer minor units (`bigint`) for money — never floats, `boolean` for flags.
 - Constraints declared: PK, FK with explicit `ON DELETE`, `NOT NULL`, `CHECK`.
 - `lowercase_snake_case` identifiers; partial indexes for soft deletes (`WHERE deleted_at IS NULL`).
 - ClickHouse: appropriate engine + `ORDER BY` key; avoid per-row mutations; prefer batch inserts and async inserts where suitable.

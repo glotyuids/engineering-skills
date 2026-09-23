@@ -36,6 +36,17 @@ All notable changes to this library. Versions follow the library `version` in
   suppression for gosec G204/G304 on CLIs and test infrastructure; verbatim assertion where
   a diagnostic's text is the contract; what the `recover()` rule requires before metrics
   exist and inside libraries.
+- `database/postgres-patterns` 0.1.0 → 0.1.1: integer minor units accepted for money;
+  `created_at DEFAULT now()` conditional on the database clock being the truth; the plan
+  check scoped to request paths and growing tables; a gapless per-owner sequence already
+  serialises that owner's writers, which limits where `SKIP LOCKED` helps; enumerating
+  owners under forced row security through a directory table, with the `SECURITY DEFINER`
+  caveat; the §8 diagnostic queries moved to `references/diagnostics.md`.
+- `database/database-migrations` 0.1.0 → 0.1.1: drop-then-create for policies, since no
+  `IF NOT EXISTS` form exists in any release; cluster-wide roles — provisioned with the
+  database by default, otherwise a duplicate-object-guarded block, and a note that advisory
+  locks are local to one database.
+- `agents/database-reviewer`: money row aligned (`numeric` or integer minor units).
 - `process/kanban-md` 0.1.0 → 0.1.1: distinguished durable author/owner from active agent
   claims, added attributed multi-agent handoffs and claim recovery, and replaced an unverified
   cross-process atomicity assumption with serialized board writes after reproducing duplicate
