@@ -47,6 +47,11 @@ All notable changes to this library. Versions follow the library `version` in
   database by default, otherwise a duplicate-object-guarded block, and a note that advisory
   locks are local to one database.
 - `agents/database-reviewer`: money row aligned (`numeric` or integer minor units).
+- `process/integration-testing` 0.1.0 → 0.1.1: new §11 for ephemeral, test-owned
+  dependencies on the default path — template-cloned per-test databases, one cluster per
+  test binary, the macOS socket-path limit — which fail rather than skip; "skip, do not
+  fail" narrowed to the shared-environment gate; triage rows, definition of done and
+  project delta extended.
 - `process/kanban-md` 0.1.0 → 0.1.1: distinguished durable author/owner from active agent
   claims, added attributed multi-agent handoffs and claim recovery, and replaced an unverified
   cross-process atomicity assumption with serialized board writes after reproducing duplicate

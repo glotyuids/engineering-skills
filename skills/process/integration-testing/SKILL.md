@@ -1,10 +1,10 @@
 ---
 name: integration-testing
-description: Integration and end-to-end tests that run against a real deployed environment, safely — the explicit opt-in gate, a dedicated least-privilege test identity whose credentials come from the secret manager, self-created test data with registered cleanup, marker values so orphans stay sweepable, keeping the suite out of the default unit-test path, and an error→cause→fix triage table. Use when asked to run integration tests, add a smoke test against staging or production, verify a deployed service end to end, debug a live issue through real API calls, wire a CI job that talks to a shared environment, or troubleshoot 401/403, timeout and leftover-data failures in tests. Trigger phrases: "run the integration tests", "smoke test prod", "test against staging", "how do I get a token for the test", "why is my test getting 403", "the test left junk behind", "clean up the test data", "set up test automation".
+description: Integration and end-to-end tests that run against a real deployed environment, safely — the explicit opt-in gate, a dedicated least-privilege test identity whose credentials come from the secret manager, self-created test data with registered cleanup, marker values so orphans stay sweepable, keeping the suite out of the default unit-test path, an error→cause→fix triage table, and ephemeral test-owned dependencies that run ungated and fail rather than skip. Use when asked to run integration tests, add a smoke test against staging or production, verify a deployed service end to end, wire a CI job that talks to a shared environment, or troubleshoot 401/403, timeout and leftover-data failures in tests. Trigger phrases: "run the integration tests", "smoke test prod", "test against staging", "how do I get a token for the test", "why is my test getting 403", "the test left junk behind", "clean up the test data", "the tests need Postgres", "should the DB tests skip when Postgres is missing".
 license: Apache-2.0
 metadata:
   source: glotyuids/engineering-skills
-  version: 0.1.0
+  version: 0.1.1
 ---
 
 # Integration testing against a real environment
@@ -20,12 +20,13 @@ cleanup are what make running tests against a real environment acceptable at all
 neither is optional, and neither can be replaced by a comment saying "careful".
 
 This skill defines only how tests against a *real deployed* system are gated,
-authenticated, isolated, cleaned up and triaged. It does not define unit tests, in-process
-fakes, contract/consumer-driven tests, or load testing. It is language-neutral: where a
-code shape is unavoidable it is shown as a labelled illustration in one language, with the
-equivalent named for other ecosystems. If the `ui-test-playwright` skill is installed, it
-covers the browser layer's own mechanics; the gate, the credentials and the cleanup rules
-below still apply to it.
+authenticated, isolated, cleaned up and triaged — and, in section 11, how ephemeral
+dependencies a test binary starts for itself run on the default path without any of that
+machinery. It does not define unit tests, in-process fakes, contract/consumer-driven tests,
+or load testing. It is language-neutral: where a code shape is unavoidable it is shown as
+a labelled illustration in one language, with the equivalent named for other ecosystems.
+If the `ui-test-playwright` skill is installed, it covers the browser layer's own
+mechanics; the gate, the credentials and the cleanup rules below still apply to it.
 
 ## 1. The four invariants
 
@@ -48,7 +49,8 @@ Pick one variable name, use it in every test, and make it the first thing every 
   easily than one that must equal a specific string.
 - **Skip, do not fail.** A missing gate means "not requested", which is the normal state
   on a developer machine and in the default pipeline. Failing there teaches people to
-  disable the suite.
+  disable the suite. This applies to the *shared-environment* gate only: a dependency the
+  test binary starts itself is never gated and never skips (section 11).
 - **State the reason in the skip message** — name the variable, so a confused reader gets
   the answer from the test output instead of from the source.
 - **Never default it on.** Not in a Makefile, not in a shell profile, not in a
@@ -91,8 +93,10 @@ Rules that hold regardless of the mechanism:
 
 - Integration tests live in their own directory (`tests/integration/` or equivalent), not
   interleaved with unit tests.
-- The default target (`make test`) runs unit tests only, offline, with no credentials
-  available. If it needs the network to pass, the separation has already failed.
+- The default target (`make test`) runs unit tests and tests against ephemeral, test-owned
+  dependencies (section 11) — offline in the sense that it opens no socket to anything it
+  did not start itself, and with no credentials available. If it needs a shared
+  environment to pass, the separation has already failed.
 - Integration targets are named for what they do — `make test-integration`,
   `make test-smoke` — and each one prints the environment it is about to touch before it
   starts. If the `makefile-conventions` skill is installed, follow its target-naming and
@@ -203,7 +207,7 @@ must print what it would delete before deleting.
 ## 6. Writing a new integration test
 
 1. **Justify the layer.** Can a unit test or a test against an ephemeral environment prove
-   this? If yes, write that instead (section 9).
+   this? If yes, write that instead (sections 9 and 11).
 2. **Place it** in the integration directory, with the project's separation mechanism
    applied (section 3).
 3. **Guard it** with the gate check as the first statement (section 2).
@@ -256,11 +260,14 @@ must print what it would delete before deleting.
 | Passes alone, fails in the suite | Shared or leftover state between tests | Unique per-run names; assert only on self-created objects |
 | Orphans left behind | Cleanup registered too late, or aborted by its own error | Register at creation; make cleanup idempotent; run the sweeper |
 | Fails only in CI | Missing egress, missing secret binding, or different base URL | Compare the CI environment's variables against the runbook's export block |
+| Database tests skip on a fresh machine | An ephemeral dependency was treated as gated | Ephemeral dependencies fail, not skip (section 11); install the server binaries |
+| Ephemeral server starts on Linux, fails on macOS | Unix socket path over the platform limit | Pass a short socket directory (section 11) |
+| Clone fails with "source database is being accessed by other users" | A session is attached to the template | Never connect to the template; only clone from it (section 11) |
 
 ## 9. When not to write one
 
-- The behaviour is provable in a unit test with a fake — write that; it runs in
-  milliseconds and never touches anything shared.
+- The behaviour is provable in a unit test with a fake, or against an ephemeral dependency
+  the test starts itself (section 11) — write that; it never touches anything shared.
 - The thing under test is a pure data transformation, a validation rule, or a formatting
   concern.
 - The only available target is production and the test must mutate state that real users
@@ -287,6 +294,66 @@ must print what it would delete before deleting.
 - If the `cicd-build-deploy` skill is installed, wire the suite as a stage there; otherwise
   follow the project's own pipeline conventions.
 
+## 11. Ephemeral dependencies on the default path
+
+A test that needs a real database does not have to wait for a deployed environment. A
+dependency the **test binary starts itself**, uses alone and throws away is not a shared
+environment: none of the four invariants is at risk, so none of the gate machinery
+applies. Such tests run on the default path, next to the unit tests.
+
+- **They are not gated and they do not skip.** If the ephemeral dependency cannot start —
+  binary missing, port busy, socket path too long — the test **fails** with a message
+  naming the dependency and how to install it. Skipping would silently drop whatever the
+  test proves, and these tests usually carry a spec's acceptance scenarios, which is
+  exactly the coverage nobody notices is gone.
+- **One cluster per test binary, one database per test.** Start the server once in the
+  suite's entry point, create a *template* database with the migrations applied, then
+  clone it per test — a clone from a template is a file copy and takes milliseconds,
+  whereas re-running migrations per test does not. Stop the cluster in the same entry
+  point, on failure too.
+- **Each test owns its database and drops it.** Never share a database across tests, and
+  never connect to the template: a template cannot be cloned while a session is attached
+  to it, so parallel tests that touch it block each other.
+- **An override is allowed, a default is not.** One environment variable may point the
+  suite at an existing local server — a developer's own instance, a CI service — but when
+  it is unset the suite starts its own. It never assumes one is running.
+- **Short socket directory.** A server listening on a Unix socket needs the socket's full
+  path to fit the platform limit — 104 bytes on macOS, 108 on Linux, file name included.
+  The per-user temporary directory macOS hands out is already around fifty characters,
+  so pass a short directory explicitly. The failure reads as "could not bind" or a
+  truncated path, and it is the usual reason a suite works on Linux and fails on a Mac.
+- **Same data discipline, smaller blast radius.** Unique names, reverse-order teardown, no
+  fixed sleeps, deterministic clocks — section 5 still applies; only the gate and the
+  credentials do not.
+
+Illustration — the shape of the entry point and the per-test clone (Go; any ecosystem's
+suite-level setup and teardown hooks work the same way):
+
+```go
+// Illustration (Go). TestMain owns the cluster; each test clones the template.
+func TestMain(m *testing.M) {
+    pg, err := testpg.Start(testpg.Options{SocketDir: shortDir()}) // fails, never skips
+    if err != nil {
+        log.Fatalf("ephemeral postgres: %v — install the server binaries, see docs/testing.md", err)
+    }
+    code := m.Run()
+    pg.Stop() // explicit: os.Exit does not run deferred calls
+    os.Exit(code)
+}
+
+func newDB(t *testing.T) *pgxpool.Pool {
+    name := "t_" + uniqueSuffix()
+    ident := pgx.Identifier{name}.Sanitize()                        // identifiers cannot be bound
+    mustExec(t, admin, "CREATE DATABASE "+ident+" TEMPLATE app_template")
+    t.Cleanup(func() { mustExec(t, admin, "DROP DATABASE "+ident) }) // LIFO: the pool closes first
+    return connect(t, name)
+}
+```
+
+If the `postgres-patterns` skill is installed, follow it for what the template's
+migrations must contain (owner column, row-security policy); otherwise follow the
+project's own schema conventions.
+
 ## Definition of done
 
 - [ ] The suite skips cleanly with no environment configured, naming the gate variable.
@@ -303,6 +370,8 @@ must print what it would delete before deleting.
 - [ ] The suite passes twice in a row against the same environment, and leaves no object
       matching the marker.
 - [ ] A sweeper exists, is gated, and prints before it deletes.
+- [ ] Tests against an ephemeral, test-owned dependency run on the default path, fail rather
+      than skip when it cannot start, and clone a migrated template per test.
 - [ ] The exact run command, including the export block, is in the project's runbook.
 - [ ] Be honest about maturity: if the suite has never actually been executed against the
       environment, say so rather than implying it is green.
@@ -328,3 +397,6 @@ The consuming repo supplies:
 - **Timeouts**: the per-test deadline and the suite-level timeout for the slowest
   legitimate flow.
 - **Which services' logs to read** when an asynchronous flow times out.
+- **Ephemeral dependencies**: which ones the test binary starts, the helper that starts
+  them, the override variable, the template database name, and the socket directory used
+  on macOS.
