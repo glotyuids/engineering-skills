@@ -52,6 +52,10 @@ All notable changes to this library. Versions follow the library `version` in
   test binary, the macOS socket-path limit — which fail rather than skip; "skip, do not
   fail" narrowed to the shared-environment gate; triage rows, definition of done and
   project delta extended.
+- `llm/llm-pipeline-rules` 0.1.0 → 0.1.1: structured-output repair is a bounded, declared
+  count (default one) instead of exactly one retry; the idempotency key may be run id +
+  step id + attempt in a durable run, with the prompt hash stored alongside and replay
+  refused on a mismatch.
 - `process/kanban-md` 0.1.0 → 0.1.1: distinguished durable author/owner from active agent
   claims, added attributed multi-agent handoffs and claim recovery, and replaced an unverified
   cross-process atomicity assumption with serialized board writes after reproducing duplicate

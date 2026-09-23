@@ -1,10 +1,10 @@
 ---
 name: llm-pipeline-rules
-description: Non-negotiable rules for a production pipeline built on a language model — the model classifies and the code decides, all model output and all user content is untrusted, structured output is schema-validated and fails closed after exactly one retry, evidence is extracted before anything is written, prompt packs carry a dated version so a regression is bisectable, every call goes through one model boundary with a budget, a timeout and an idempotency key, and logs carry prompt hashes rather than prompt bodies. Use when adding or changing an LLM call, designing a generation or agent pipeline, editing prompts and templates, adding retrieval or a judge stage, wiring an LLM proxy or router, or swapping models. Trigger phrases "add an LLM step", "change this prompt", "prompt injection", "the model returned invalid JSON", "switch to another model", "why did the output change", "add a guardrail", "the LLM bill blew up".
+description: Non-negotiable rules for a production pipeline built on a language model — the model classifies and the code decides, all model output and all user content is untrusted, structured output is schema-validated and fails closed after a bounded, declared number of repairs (default one), evidence is extracted before anything is written, prompt packs carry a dated version so a regression is bisectable, every call goes through one model boundary with a budget, a timeout and an idempotency key, and logs carry prompt hashes rather than prompt bodies. Use when adding or changing an LLM call, designing a generation or agent pipeline, editing prompts and templates, adding retrieval or a judge stage, wiring an LLM proxy or router, or swapping models. Trigger phrases "add an LLM step", "change this prompt", "prompt injection", "the model returned invalid JSON", "switch to another model", "why did the output change", "add a guardrail", "the LLM bill blew up".
 license: Apache-2.0
 metadata:
   source: glotyuids/engineering-skills
-  version: 0.1.0
+  version: 0.1.1
 ---
 
 # LLM pipeline rules — the model proposes, the code disposes
@@ -140,26 +140,30 @@ the model is untrusted data too.
 - Output that will be re-ingested later (stored drafts, conversation history) re-enters
   through `injection_scan` like any other untrusted source.
 
-## 4. Structured output: fail closed, exactly one retry
+## 4. Structured output: fail closed after a bounded repair count
 
 | Step | Rule |
 |---|---|
 | 1. Validate | Parse and validate against the template's schema — strict, additional fields rejected |
-| 2. On failure | Run **one** retry, echoing the validation error back to the model |
-| 3. On second failure | Return a typed `ERROR` to the caller and stop the stage |
+| 2. On failure | Run a **repair**: re-ask once, echoing the validation error back to the model |
+| 3. Repeat | Up to the template's **declared repair count** — default **one**, set in configuration, never unbounded |
+| 4. On exhaustion | Return a typed `ERROR` to the caller and stop the stage, with the attempts recorded on the run |
 
 Non-negotiable specifics:
 
-- **One retry, not a repair loop.** A loop that keeps re-asking until the shape is right
-  turns a broken prompt into an unbounded bill and hides the regression from the golden
-  set. One retry is diagnosis-friendly; N retries is a cost incident waiting to happen.
+- **A declared count, not a repair loop.** The count is a per-template setting, visible in
+  configuration and recorded on the run, and it defaults to one. A loop that keeps
+  re-asking until the shape is right turns a broken prompt into an unbounded bill and
+  hides the regression from the golden set. Raise the count above one only for a template
+  whose golden set shows the second repair actually succeeds, and record the pass rate per
+  attempt so the cost stays visible.
 - **Never accept prose, markdown, or partial JSON.** No "extract the JSON from the code
   fence with a regex", no lenient parser, no defaulting a missing required field. Every
   such leniency is a silent decision the model made for you.
 - **Fail closed** — the failure surfaces as an error the orchestrator handles, never as an
   empty result that downstream stages treat as "nothing to do".
-- The retry counts against the call's retry budget (section 7) and reuses the same
-  idempotency key.
+- Each repair counts against the call's retry budget (section 7) and presents the same
+  idempotency key; only a validated result is ever stored under it.
 - Prefer provider-side structured output/schema enforcement where available, and still
   validate locally. Provider enforcement is a shortcut, not the contract.
 
@@ -219,9 +223,17 @@ SDK.**
 
 ### Idempotency
 
-- Every generation call carries an **idempotency key** derived from the stable inputs:
-  job/run id, stage name, hash of the resolved prompt inputs, prompt pack version, model
-  alias. Retries — at the boundary, at the worker, or after a crash — present the same key.
+- Every generation call carries an **idempotency key** that identifies the *logical call*.
+  Two derivations are valid, and the project delta says which:
+  - **Stateless pipeline** — a hash of the stable inputs: job/run id, stage name, hash of
+    the resolved prompt inputs, prompt pack version, model alias.
+  - **Durable, resumable run** (checkpointed steps in a task store) — `run_id + step_id +
+    attempt`, where `attempt` is the run's own persisted counter: a resumed worker reads
+    it back and presents the *same* key, a deliberate re-execution increments it. Store
+    the prompt hash and pack version next to the result and **refuse to replay on a
+    mismatch**, so a resumed run cannot pick up a result an earlier template produced.
+- Retries — at the boundary, at the worker, or after a crash — present the same key, and so
+  does a repair (section 4); only a validated result is stored under it.
 - A repeated key returns the stored result instead of re-calling. Without this, a worker
   that is retried after a timeout pays twice and produces two different texts, one of which
   is already downstream.
@@ -269,7 +281,7 @@ latency per pack version so a "harmless" prompt tweak that doubles the cost is v
 | Request with no supporting evidence | `NO_SUPPORTED_ANSWER`, nothing generated |
 | Oversized / truncated / empty input | Typed error, deterministic truncation, no crash |
 | Command outside the allowlist | Rejected by validation, orchestrator never sees it |
-| Malformed or prose-wrapped model output | One retry, then `ERROR` |
+| Malformed or prose-wrapped model output | The declared repairs (default one), then `ERROR` |
 | A question the sources cannot answer | Refusal, **no fabrication** |
 
 That last row is the mandatory negative case: the pipeline must be provably capable of
@@ -312,7 +324,7 @@ behaviour:
 - [ ] Untrusted text kept out of the system prompt and fenced with an unforgeable delimiter
 - [ ] Injection redaction applied before indexing and before any prompt
 - [ ] Evidence-first gating enforced; `NO_SUPPORTED_ANSWER` blocks generation
-- [ ] Output validated fail-closed with exactly one retry — no repair loop, no lenient parse
+- [ ] Output validated fail-closed within the declared repair count (default one) — no unbounded loop, no lenient parse
 - [ ] Intent allowlist enforced; unknown commands and unknown fields rejected
 - [ ] No control-flow branch reads free-form prose
 - [ ] Model referenced by role alias only; alias map is config, resolved model recorded
@@ -334,7 +346,8 @@ The consuming repo supplies:
 - The prompt pack location, its `template_id` namespace, and the current version.
 - The role aliases in use and where the alias → model map lives per environment.
 - The schema definitions and the validator; where strictness is configured.
-- The durable task store backing the orchestrator, and the idempotency key derivation.
+- The durable task store backing the orchestrator, which idempotency-key derivation is in
+  use (stateless hash, or run/step/attempt), and the declared repair count per template.
 - Per-call, per-job and per-user budget values, and the timeout per alias.
 - Where the golden set and red-team cases live, and the command that runs them.
 - The redaction marker, the object store holding raw snapshots, its access policy and its
