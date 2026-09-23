@@ -4,7 +4,7 @@ description: Run a project board that lives in the repository as markdown files 
 license: Apache-2.0
 metadata:
   source: glotyuids/engineering-skills
-  version: 0.1.0
+  version: 0.1.1
 ---
 
 # Kanban in markdown
@@ -56,7 +56,7 @@ board-specific.
 | `title` | One line, imperative, specific enough to be recognisable in a list. |
 | `status` | Current column. Board-specific vocabulary — see §3. |
 | `priority` | Board-specific ranking. Read the board before assuming a scale or its direction. |
-| `assignee` | Human owner, if the board tracks people. |
+| `assignee` | Durable accountable owner: a human or stable agent identity, according to project policy. This is separate from the active execution claim. |
 | `tags` | Free-form labels used for filtering (`bug`, `docs`, a component name). |
 | `created` / `updated` | Maintained by the CLI. Do not hand-set. |
 | `started` / `completed` | Set automatically on the first move out of the initial status and on the move to a terminal status. |
@@ -65,7 +65,7 @@ board-specific.
 | `parent` | Umbrella/epic task this one belongs to. |
 | `depends_on` | Task IDs that must reach a terminal status first. Drives blocked/unblocked queries. |
 | `blocked` + reason | Explicit block, independent of dependencies. Always carries a reason. |
-| `claim` | Which agent currently owns execution, and when the claim was taken. See §4. |
+| `claimed_by` / `claimed_at` | Active agent claim and its timestamp in the verified CLI. The `--claim` flag maintains them; they are not durable authorship fields. See §4. |
 | source fields | On imported tasks: the original ID, source URL and source notes. |
 
 ### Body
@@ -73,6 +73,8 @@ board-specific.
 Keep the body concrete and current. A structure that works:
 
 ```markdown
+Created by: <agent-name>  # durable author attribution; body text, not invented frontmatter
+
 ## Outcome        # what is true when this is done
 ## Why            # the reason it is worth doing
 ## Acceptance     # checkable conditions, not aspirations
@@ -114,13 +116,64 @@ kanban-md agent-name    # once per session: generates a stable two-word identity
 ```
 
 - Take a claim when starting, renew it with each progress note, release it when finishing or parking.
-- Prefer the atomic `pick` (§5) over `list` → `edit --claim` → `move`: the three-step sequence has a
-  race window in which two agents claim the same task.
+- Prefer one `pick` (§5) operation over separate selection/claim/move calls, but serialize board
+  mutations across processes. Do not infer a process-safe lock from the command's "atomic" label.
+  In a local check of CLI 0.36.1, two concurrent `pick` processes both reported success on the same
+  task, and the last write replaced the first claim. Use one coordinator as board writer, or a
+  verified shared lock covering all board writes, before allowing parallel agents to operate it.
 - **Resume before picking.** If an executable task is already `in-progress` under your identity,
   continue it rather than claiming another. Half-finished work with no owner is how a board grows
   a permanently stalled column.
 - An umbrella task (`parent` of others) is never claimed. Execute its children; close it when they
   are all closed.
+
+### Author, owner and executor
+
+Keep these identities distinct:
+
+- **Author:** preserve `Created by: <agent-name>` in the task body when creating agent-authored
+  work. The verified CLI has no `--author` flag; do not invent an unsupported frontmatter field.
+- **Owner:** set `--assignee <agent-name>` for the durable accountable agent when project policy
+  uses agent ownership. Keep it across a temporary review handoff; change it only for an actual
+  transfer of responsibility.
+- **Executor:** use `--claim <agent-name>` while actively working. Handoff/release clears the claim
+  without changing assignee or creator. A reviewer takes their own claim instead of sharing the
+  implementation agent's identity.
+- **Note author:** prefix progress and handoff text with `<agent-name>:`. `-t` adds a timestamp,
+  not automatic actor attribution. Keep previous notes instead of rewriting authorship history.
+
+Generate an identity once per agent execution context and retain its mapping to the orchestrator's
+agent ID and assigned task. After a restart, read that mapping and existing claims before picking
+new work. Use `list --claimed-by <agent-name>` to find active execution and
+`list --assignee <agent-name>` to find accountable ownership; verify flag availability.
+Read the full task with `show` (or JSON for programmatic checks) to distinguish owner from
+executor: a compact row can display the active claimant even when filtered by assignee.
+
+### Coordinator and worker protocol
+
+The simplest safe multi-agent arrangement is one board writer: the coordinator serializes task
+creation, claims, progress, handoffs and completion; workers send attributed updates and may read
+the board. Code work still runs in parallel under disjoint file ownership. After claiming, the
+coordinator reads the task back and dispatches only when the expected identity owns the claim.
+Checking a claim after the write is useful verification, not a substitute for serialization.
+
+Every dispatch names the board directory, task ID, stable agent identity, owned paths, dependencies,
+acceptance criteria and next action. For already assigned work, the coordinator checks readiness
+and claims the explicit ID (for example `move <ID> in-progress --claim <agent>` after verifying
+that flag), then reads it back. Verify task ID, durable assignee, active claimant and owned paths
+against the dispatch; claimant equality alone is insufficient. Use `pick` to allocate work only
+from a deliberately eligible pool, then establish the chosen assignment before dispatch. In CLI
+0.36.1, `pick` has no assignee filter and may claim another agent's assigned task even when all
+writes are serialized; role tags do not enforce ownership.
+
+Do not dispatch two agents to the same task or conflicting paths. Verify referenced dependency IDs
+exist: CLI 0.36.1 treats missing IDs as satisfied for `list --unblocked`, so a mistyped dependency
+must not become authorization to start dependent work.
+
+Before recovering an expired or stale claim, check whether the original worker is still running;
+claim expiry alone is not evidence that it stopped. Record a takeover and transfer ownership only
+when intended. Release claims when parking or completing work, retain attribution, and close the
+task only after its acceptance evidence and required integration/review exist.
 
 ## 5. Command surface
 
@@ -134,7 +187,7 @@ kanban-md agent-name    # once per session: generates a stable two-word identity
 | Blocked / ready-to-start | `kanban-md list --compact --blocked` / `--not-blocked --status todo` |
 | Dependencies all resolved | `kanban-md list --compact --unblocked` |
 | Read one task in full | `kanban-md show <ID>` |
-| Claim the next task atomically | `kanban-md pick --claim <agent> --status todo --move in-progress` |
+| Select and claim the next task (serialize board writes) | `kanban-md pick --claim <agent> --status todo --move in-progress` |
 | Create | `kanban-md create "TITLE" --priority <P> --tags <T> --body "TEXT"` |
 | Create and claim in one step | `kanban-md create "TITLE" --priority <P> --claim <agent>` |
 | Move | `kanban-md move <ID> in-progress` (or `--next` / `--prev`) |
@@ -158,7 +211,8 @@ Notes on the commands that are easy to misuse:
   `-a`/`--append-body` appends rather than replacing (`-t` prefixes a timestamp).
 - **`move`** sets `started`/`completed` automatically; `--next`/`--prev` fail at the boundary
   statuses, and cannot be combined with an explicit status.
-- **`pick`** takes the highest-priority unclaimed, unblocked task in one atomic step.
+- **`pick`** selects and claims the highest-priority unclaimed, unblocked task in one command.
+  Cross-process safety must be verified separately; follow the single-writer/lock policy in §4.
 - **`handoff`** moves to `review`, appends the note, and optionally blocks and/or releases.
 - Global flags: `--json`, `--table`, `--compact` (alias `--oneline`), `--dir <PATH>`, `--no-color`.
 
@@ -214,15 +268,17 @@ add missing items with `create`, delete genuinely dead items with `delete <ID> -
 **Planning.** `board --compact` for capacity → `list --compact --status backlog,todo --sort priority -r`
 for candidates → promote, `edit <ID> --assignee <name>`, `edit <ID> --due YYYY-MM-DD`.
 
-**Agent session.**
+**Agent session.** Run mutations through the coordinator or the verified board-write lock when
+multiple agents are active. The identity below is the worker being represented, not necessarily
+the process issuing the command.
 
 ```bash
 kanban-md agent-name                                              # identity, once
 kanban-md board --compact                                         # orient
-kanban-md pick --claim <agent> --status todo --move in-progress   # claim atomically
+kanban-md pick --claim <agent> --status todo --move in-progress   # serialized selection + claim
 kanban-md show <ID>                                               # read it fully
 
-kanban-md edit <ID> -a "Implemented X; tests green." -t --claim <agent>   # progress + renew
+kanban-md edit <ID> -a "<agent>: Implemented X; recorded test evidence." -t --claim <agent>   # progress + renew
 
 kanban-md edit <ID> --release                                     # finish
 kanban-md move <ID> done
@@ -232,10 +288,10 @@ kanban-md move <ID> done
 
 ```bash
 kanban-md handoff <ID> --claim <agent> \
-  --note "Ready to merge on branch task/<ID>; waiting on: <what>." -t --release
+  --note "<agent>: Ready to merge on branch task/<ID>; waiting on: <what>." -t --release
 
 kanban-md handoff <ID> --claim <agent> --block "<what is blocking>" \
-  --note "To unblock: <step>. Next action after that: <step>." -t --release
+  --note "<agent>: To unblock: <step>. Next action after that: <step>." -t --release
 ```
 
 **Resume a parked task.** `edit <ID> --claim <agent>` → `edit <ID> --unblock --claim <agent>` if it
@@ -268,6 +324,8 @@ file. This applies to `--body`, `--append-body`, `--note` and `--block`.
 - [ ] The task exists on the board before the work is claimed as board work.
 - [ ] Its status reflects reality: `in-progress` only while implementation is actually happening.
 - [ ] The body carries outcome, acceptance, next action, and the evidence produced so far.
+- [ ] Creator and note attribution are preserved; assignee and active claimant reflect their distinct roles.
+- [ ] Concurrent board mutations were serialized or protected by a verified shared lock.
 - [ ] The claim was released, or the task was handed off with a note saying what is awaited.
 - [ ] Acceptance conditions were checked, not asserted — tests run, docs updated, output recorded.
 - [ ] Durable documents touched by the change were updated and referenced from the task body.
@@ -284,6 +342,7 @@ The consuming repo supplies:
 - The priority scheme **and its direction** — which end is most urgent — plus any meaning attached
   to priority bands, such as a mapping to milestones.
 - WIP limits, and which statuses require a claim.
+- Durable agent-owner/author conventions, identity-to-orchestrator mapping and board-write serialization policy.
 - The task body template, if it differs from the one in §2.
 - Which durable documents (decision log, architecture records, changelog) a task must keep in sync,
   and where they live.

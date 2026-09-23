@@ -18,6 +18,10 @@ All notable changes to this library. Versions follow the library `version` in
 
 ### Changed
 
+- `process/kanban-md` 0.1.0 → 0.1.1: distinguished durable author/owner from active agent
+  claims, added attributed multi-agent handoffs and claim recovery, and replaced an unverified
+  cross-process atomicity assumption with serialized board writes after reproducing duplicate
+  claims in CLI 0.36.1. Documented dependency-ID validation and the coordinator/worker protocol.
 - `frontend/react-conventions` 0.1.0 → 0.1.1: added the missing "Forms" section (controlled
   inputs, validation timing, submit-in-flight guarding, field-level server errors,
   labelling) that the skill's description already promised; sections renumbered accordingly.
