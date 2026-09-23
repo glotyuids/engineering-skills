@@ -1,10 +1,10 @@
 ---
 name: api-and-events
-description: HTTP and asynchronous message contracts between services — versioned public routes and a separate internal path space, the internal API-key header and its mandatory strip at the edge, OpenAPI as the source of truth with generated clients, status codes and error bodies, pagination, idempotency keys, contract versioning, and messaging rules (versioned event contracts, idempotent consumers, ack-after-durable, dead-letter handling, and when a broker is justified at all). Use when adding or changing an endpoint, writing or updating an OpenAPI spec, choosing a status code or error shape, paginating a list, making a POST retry-safe, breaking or versioning a contract, exposing an internal route, configuring the edge proxy, publishing or consuming an event, defining a message schema, or asking "should this be a queue", "why did we process this message twice", "what belongs in the dead-letter queue".
+description: HTTP and asynchronous message contracts between services — versioned public routes and a separate internal path space, the internal API-key header and its mandatory strip at the edge, OpenAPI as the source of truth with generated clients, status codes and error bodies, pagination, idempotency keys, contract versioning, and messaging rules (versioned event contracts, open versus closed contracts, the proto3 JSON traps, idempotent consumers, ack-after-durable, dead-letter handling, and when a broker is justified at all). Use when adding or changing an endpoint, writing or updating an OpenAPI spec, choosing a status code or error shape, paginating a list, making a POST retry-safe, breaking or versioning a contract, exposing an internal route, configuring the edge proxy, publishing or consuming an event, defining a message schema, or asking "should this be a queue", "why did we process this message twice", "what belongs in the dead-letter queue".
 license: Apache-2.0
 metadata:
   source: glotyuids/engineering-skills
-  version: 0.1.0
+  version: 0.1.1
 ---
 
 # API and event contracts
@@ -134,7 +134,8 @@ spec diff as the contract change it is.**
 - Identifiers are opaque strings to clients. Do not expose auto-increment primary keys.
 - Money is an integer minor unit plus a currency code, never a float.
 - Unknown request fields are rejected on write endpoints; unknown **response** fields must
-  be tolerated by clients (see §6).
+  be tolerated by clients (see §6). Message contracts choose per file between the same two
+  behaviours — open or closed, §7.
 
 ### Status codes
 
@@ -220,7 +221,7 @@ Additive changes are safe within a version; everything else is a new version.
 |---|---|
 | New endpoint | yes |
 | New **optional** request field with a safe default | yes |
-| New response field | yes — provided consumers ignore unknown fields |
+| New response field | yes — provided consumers ignore unknown fields (an **open** contract, §7); a **closed** contract needs a new version |
 | New enum value in a response | only if consumers have a documented fallback |
 | Removing or renaming a field | no |
 | Changing a field's type, units or meaning | no |
@@ -245,16 +246,42 @@ Additive changes are safe within a version; everything else is a new version.
   of a message can coexist while consumers migrate.
 - JSON Schema or protobuf. Whichever the project picks, the contract file is authoritative
   and the producer's struct is generated from or validated against it.
+- **Protobuf JSON is not plain JSON.** The proto3 JSON mapping encodes every 64-bit integer
+  (`int64`, `uint64`, `fixed64`, `sint64`, `sfixed64`) as a decimal string, does not emit
+  `null`, and on parsing treats `null` as "unset" — indistinguishable from an absent
+  field. So: an example that shows a bare number for a 64-bit field will not match what
+  the producer emits; a consumer written against hand-drawn JSON breaks on the first id
+  above 2^53; and "present but null" is not a state the contract can express — model a
+  tri-state value explicitly (a wrapper message, or an `optional` field with presence),
+  never as `null`.
 - Every field documents its semantics, whether it is required, its units and its enum
   values. A field named `status` with undocumented values is not a contract.
 - Routing (topic/queue/subject names, keys, bindings) is part of the contract and is
   written down next to the schema, not only in deployment configuration.
 
+### Open and closed contracts
+
+Declare, per contract file, which of the two it is — the consumer rules differ:
+
+| Kind | Unknown fields | Evolution | Typical use |
+|---|---|---|---|
+| **Open** | tolerated by consumers, never depended on | additive within a version | notifications with many independent consumers |
+| **Closed** | rejected — an unknown field fails validation | any change is a new version | a domain contract that is also a stored record; anything carrying authority (grants, limits, epochs, revisions) |
+
+A closed contract exists because silently accepting a field you do not understand is a
+way to accept a meaning you did not check. When one schema is both the stored record and
+the event payload — `api/contracts/` if the `go-conventions` skill is installed, otherwise
+wherever the project keeps domain contracts — it is closed.
+
 ### Envelope
 
-Every message carries the same envelope, whatever the broker:
+Every message carries one envelope, whatever the broker. The names below are an
+**illustration, not a standard**: a project with an existing envelope — one carrying a
+fencing epoch, an expected revision, a causation id — keeps its own and names its fields
+in the project delta. What is not negotiable is that each *role* below is filled by some
+field:
 
-| Field | Meaning |
+| Role (illustrative name) | Meaning |
 |---|---|
 | `event_id` | unique per emission — the deduplication key |
 | `event_type` | fully qualified name, e.g. `<domain>.order.created` |
@@ -288,8 +315,8 @@ identifier and let the consumer fetch what it is entitled to see.
   permanent (do not requeue — dead-letter immediately).
 - **Validate defensively at the boundary.** Parse and validate the envelope and payload
   before touching domain state. A malformed or unknown-type message is a permanent failure:
-  dead-letter it, do not spin. Tolerate unknown fields (forward compatibility); reject
-  missing required ones.
+  dead-letter it, do not spin. On an **open** contract tolerate unknown fields (forward
+  compatibility); on a **closed** one reject them. Reject missing required fields on both.
 - **Bound prefetch and concurrency.** A consumer that holds more unacked messages than it
   can finish inside the broker's visibility/ack timeout manufactures its own duplicate
   storm.
@@ -346,6 +373,8 @@ For an HTTP change:
 For a messaging change:
 
 - [ ] Contract file added or updated under `api/events/v<n>/`, with routing documented.
+- [ ] The contract file says whether it is open or closed, and the consumer's unknown-field
+      behaviour matches.
 - [ ] Envelope complete; no secrets or PII in the payload.
 - [ ] Consumer is idempotent, with the dedupe mechanism named and tested by redelivering
       the same `event_id` twice.
@@ -377,8 +406,8 @@ The consuming repository must supply:
    encoding.
 8. **Idempotency-key storage** — where keys are persisted and their TTL.
 9. **Whether a broker exists at all**, which one, and the recorded justification.
-10. **Event contract directory and format** (JSON Schema or protobuf), plus the envelope
-    field names actually used.
+10. **Event contract directory and format** (JSON Schema or protobuf), whether each
+    contract is open or closed, and the envelope field names actually used.
 11. **Deduplication store** — the processed-messages table and its retention.
 12. **Dead-letter naming, maximum attempts, alert route and replay runbook location.**
 13. **Deprecation window** for a superseded API or event version.

@@ -4,7 +4,7 @@ description: End-to-end phased checklist for scaffolding, wiring and shipping a 
 license: Apache-2.0
 metadata:
   source: glotyuids/engineering-skills
-  version: 0.1.0
+  version: 0.1.1
 ---
 
 # New microservice — end-to-end checklist
@@ -84,8 +84,9 @@ Choose per data class, not per service. A service may use several.
 | Vector retrieval | `MANAGED_PG` + vector extension | Only if you actually do similarity search. |
 | Nothing durable | none | Document the no-DB decision explicitly (Phase 8). |
 
-- [ ] Every user-owned entity carries a `user_id`. Do not invent a parallel tenancy column
-      when the platform already has one.
+- [ ] Every owned entity carries the platform's owner column (`user_id`, `tenant_id` or the
+      project's equivalent — a project delta). Do not invent a parallel tenancy column when
+      the platform already has one.
 
 ## Phase 3 — Service code
 
@@ -149,7 +150,7 @@ replace (
   (defence in depth — either alone has failed before):
   1. set the per-transaction session variable the row-level-security policy reads;
   2. add the explicit owner predicate to the `WHERE` clause.
-- `[!]` Never trust a `user_id` supplied by the client — body, query string or header.
+- `[!]` Never trust an owner id supplied by the client — body, query string or header.
 - Internal endpoints are not "trusted therefore unscoped": they still pass a subject.
 
 ### Logging and the PII denylist
@@ -162,7 +163,7 @@ Structured JSON logs, with a redaction pass. `[!]` Never log:
 - precise location or exact coordinates;
 - any field the product treats as private.
 
-Log identifiers and shapes instead: `user_id`, request id, byte counts, enum outcomes.
+Log identifiers and shapes instead: the owner id, request id, byte counts, enum outcomes.
 
 ### HTTP router and middleware order
 
@@ -196,16 +197,17 @@ SELECT jsonb_array_elements_text(
 )
 ```
 
-- `[!]` If the platform isolates users at the row level, every user-owned table gets the
+- `[!]` If the platform isolates owners at the row level, every owned table gets the
   policy in its **creating** migration — retrofitting isolation later means auditing every
-  query written in between:
+  query written in between (`<owner_col>` is the platform's owner column):
 
 ```sql
 ALTER TABLE <t> ENABLE ROW LEVEL SECURITY;
 ALTER TABLE <t> FORCE  ROW LEVEL SECURITY;
-CREATE POLICY <t>_user_isolation ON <t>
-  USING      (user_id = NULLIF(current_setting('app.user_id', true), '')::uuid)
-  WITH CHECK (user_id = NULLIF(current_setting('app.user_id', true), '')::uuid);
+DROP POLICY IF EXISTS <t>_owner_isolation ON <t>;
+CREATE POLICY <t>_owner_isolation ON <t>
+  USING      (<owner_col> = NULLIF(current_setting('app.<owner_col>', true), '')::uuid)
+  WITH CHECK (<owner_col> = NULLIF(current_setting('app.<owner_col>', true), '')::uuid);
 ```
 
 ### Dockerfile

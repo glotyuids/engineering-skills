@@ -1,10 +1,10 @@
 ---
 name: observability-and-quality
-description: What a service must expose so a failure can be seen and explained — liveness vs readiness and why liveness must never check dependencies, structured logging with a correlation id propagated through the whole call chain, log levels, the never-log-secrets-or-personal-data rule and connection-string redaction, making silent failures observable, the metric set worth having (request rate/latency/errors, dependency latency, queue depth, consumer lag) with cardinality discipline, the linter set, and the test policy. Use when adding a health endpoint, wiring a logger or metrics, or when the user says "the pod keeps restarting", "readiness is flapping", "we can't tell what happened in prod", "the metrics backend fell over", "what should we log", "what metrics do we need", "which linters do we run", "add tests for this", "why did this fail silently", or when reviewing observability before a first deploy.
+description: What a service must expose so a failure can be seen and explained — liveness vs readiness and why liveness must never check dependencies, structured logging with a correlation id propagated through the whole call chain, log levels, the never-log-secrets-or-personal-data rule and connection-string redaction, making silent failures observable, the metric set worth having (request rate/latency/errors, dependency latency, queue depth, consumer lag) with cardinality discipline, the linter set with the approved answers to gosec G204/G304, and the test policy. Use when adding a health endpoint, wiring a logger or metrics, or when the user says "the pod keeps restarting", "readiness is flapping", "we can't tell what happened in prod", "the metrics backend fell over", "what should we log", "what metrics do we need", "which linters do we run", "add tests for this", "why did this fail silently", or when reviewing observability before a first deploy.
 license: Apache-2.0
 metadata:
   source: glotyuids/engineering-skills
-  version: 0.1.0
+  version: 0.1.1
 ---
 
 # Observability and quality
@@ -220,6 +220,19 @@ Two rules follow from the table:
 - **An alert-worthy condition needs a metric, not a log line.** Logs explain after the
   fact; metrics are what fire.
 
+**Before metrics exist, and inside libraries.** The observables above assume a service with
+a metrics registry. Two common situations lack one:
+
+- *No metrics yet* (a CLI, a service before its first deploy): the `recover()` handler still
+  logs the stack with the request or run id and still surfaces the failure — a 500, or a
+  typed error to the caller. Register `panics_total` and the other degradation counters
+  with the **first** metrics registration; until then the log line is the observable, and
+  the definition of done says so rather than claiming a counter that does not exist.
+- *A library or engine* whose audit trail lives in its own state (an interpreter, a workflow
+  runtime): it holds no logger and no registry. It returns the recovered panic as a typed
+  result the caller can log and count, and records the event in its own trail if it keeps
+  one. The service that embeds it owns the metric.
+
 The go pack ships a `silent-failure-hunter` agent that greps for exactly these shapes —
 run it after writing error-handling, adapter or consumer code.
 
@@ -347,6 +360,13 @@ guarantee survives a rewording. If the frontend pack's `i18n-conventions` skill 
 installed, the shared constant is the message key; otherwise follow the project's own
 conventions.
 
+**Exception: when the text is the contract.** A compiler or linter diagnostic, a CLI's
+machine-parsed output, a protocol error string — text that tools, scripts or a spec depend
+on verbatim — is asserted verbatim, against a golden file or the exported constant, and a
+change to it is reviewed as a contract change. The rule above targets product copy a human
+reads, where the wording is free to change and the *behaviour* is what the test must pin.
+Say in the test which kind it asserts.
+
 ## 9. Linters
 
 Assume `golangci-lint` with at least:
@@ -375,6 +395,20 @@ findings and a `//nolint` habit.
   `math/rand` where `crypto/rand` is required, world-readable file permissions,
   unvalidated redirects, and TLS verification disabled "for now".
 
+**`gosec` findings that fire on legitimate code.** Two rules trip on test infrastructure and
+CLIs by design; the approved patterns are:
+
+| Finding | Legitimate case | Approved pattern |
+|---|---|---|
+| G204 — subprocess launched with a variable | a test harness or CLI that spawns a binary | the binary's path comes from configuration or the environment, never from argv or user input; arguments go in a slice, never through a shell |
+| G304 — file path from tainted input | a CLI that opens the file the user named | open it through `os.Root` (Go 1.24+) rooted at the permitted directory, or `filepath.Clean` plus a prefix check against that directory |
+
+Where the pattern is followed and the finding still fires, the suppression is
+**pre-approved** — in the form `//nolint:gosec // G304: path is rooted at <dir> via os.Root`,
+rule id and reason both mandatory. (`gosec` run standalone rather than through
+`golangci-lint` reads its own form, `//#nosec G304 -- <reason>`.) Every other `gosec`
+finding keeps the explicit-approval rule above.
+
 **Where the linter is invoked is not this skill's business.** The linter *set*, and the
 expectation that the code passes it, live here. The `lint` target that runs it and the
 fan-out across modules belong to the Makefile — if the infra pack's
@@ -401,8 +435,9 @@ run `golangci-lint run` per module. The local verification gate as a whole is
       label's value set is enumerable.
 - [ ] Alert-worthy conditions are metrics, not log lines.
 - [ ] The linter set runs clean; every `//nolint` names a linter and a reason.
-- [ ] Tests assert behaviour and shared constants — no retyped user-visible string — and
-      no test was added that nobody asked for.
+- [ ] Tests assert behaviour and shared constants — no retyped user-visible string, and a
+      diagnostic asserted verbatim is marked as contract text — and no test was added that
+      nobody asked for.
 - [ ] Tests pass with `-race` and contain no `time.Sleep` synchronization.
 
 ---

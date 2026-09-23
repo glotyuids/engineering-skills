@@ -18,6 +18,24 @@ All notable changes to this library. Versions follow the library `version` in
 
 ### Changed
 
+- `go/go-conventions` 0.1.0 → 0.1.1: the composition root may be a `New(deps)` package shared
+  by `main` and tests; engine packages (interpreters, compilers) are a leaf layer with their
+  own diagnostics; `domain` may import transport-free generated contract types when the
+  contract is the record; `api/contracts/` for record-and-event schemas; library rows for
+  YAML, CEL and protovalidate with their current module paths and the `tool` directive;
+  data ownership generalised from `user_id` to the project's owner column; configuration
+  split into deployment wiring (environment) and authority-bearing policy (data with
+  provenance); a shared-module gate for several authors.
+- `go/new-microservice` 0.1.0 → 0.1.1: owner column generalised from `user_id`, and the
+  row-security block made re-runnable, matching `go-conventions` §6 and
+  `database-migrations` §3.
+- `go/api-and-events` 0.1.0 → 0.1.1: open versus closed contracts (tolerate versus reject
+  unknown fields); the envelope field names demoted to an illustration; the proto3 JSON
+  traps (64-bit integers as strings, `null` equals absent).
+- `go/observability-and-quality` 0.1.0 → 0.1.1: approved patterns and a pre-approved
+  suppression for gosec G204/G304 on CLIs and test infrastructure; verbatim assertion where
+  a diagnostic's text is the contract; what the `recover()` rule requires before metrics
+  exist and inside libraries.
 - `process/kanban-md` 0.1.0 → 0.1.1: distinguished durable author/owner from active agent
   claims, added attributed multi-agent handoffs and claim recovery, and replaced an unverified
   cross-process atomicity assumption with serialized board writes after reproducing duplicate
