@@ -114,6 +114,69 @@ Settings → Skills.
 
 ---
 
+## Update installed skills
+
+Installed copies carry `metadata.source` and `metadata.version`, so an agent can tell which
+of them are behind the library. Say this to your agent:
+
+> Update the skills installed from github.com/glotyuids/engineering-skills in this project
+> to the library's current versions.
+
+Other phrasings that work: *"bring the installed packs up to date"*, *"check whether our
+skills from engineering-skills are stale"*, *"pull the latest go and database skills"*.
+
+<details>
+<summary><strong>Agent: follow this procedure</strong> (this section is the instruction set)</summary>
+
+You are updating skills that were previously installed from this library. Do this:
+
+1. **Find what is installed.** Search every tool skills directory in the project
+   (`.claude/skills/`, `.agents/skills/`, `.cursor/skills/`, and any other path listed under
+   `toolPaths` in `manifest.json`) for `SKILL.md` files whose frontmatter carries
+   `metadata.source: glotyuids/engineering-skills`. Record each skill's name, directory and
+   `metadata.version`. Skills without that source line — including the project's own
+   `<skill>-project` delta skills — are not yours to touch.
+2. **Get the current library.** `git clone` it into a temporary directory if you have a
+   shell (or pull an existing clone); otherwise fetch `manifest.json` and each needed file
+   from `https://raw.githubusercontent.com/glotyuids/engineering-skills/main/<path>`.
+   `manifest.json` maps each skill name to its pack and `skillPath`.
+3. **Classify each installed skill before changing anything.** With a clone, run
+   `scripts/check-drift.sh <project>` and use its verdicts; without one, compare
+   `metadata.version` and, where equal, the file contents:
+   - **IN SYNC** — identical to the library: leave it.
+   - **STALE** — the library version is newer: replace it (step 4).
+   - **MODIFIED** — same version, different content: it was hand-edited locally. **Do not
+     overwrite it.** List it in the report and ask whether to move the edit upstream or
+     discard it; the library's rule is upstream-first.
+   - **ORPHAN** — no longer in the library: report it; remove it only if the user confirms.
+4. **Replace stale skills wholesale.** Delete the installed directory and copy the library's
+   whole `<skillPath>/<skill>/` in its place — `SKILL.md` plus any `references/` — in
+   **every** tool directory where the skill was installed. Do the same for each installed
+   agent (`<agentPath>/<agent>.md`) whose content differs from the library's. Keep the
+   `metadata.source` and `metadata.version` lines exactly as the library ships them.
+5. **Do not widen the install.** A pack may have gained skills since the install; do not
+   add them unless asked. Mention them in the report so the user can decide.
+6. **Read the changelog for what changed.** In `CHANGELOG.md`, read every entry for the
+   skills you replaced and tell the user what changed in substance — rules that were
+   generalised, sections added, files moved to `references/`. Then compare each updated
+   skill's `## Project delta` section with the project's `<skill>-project` delta and
+   `AGENTS.md`: list new delta fields the project must now supply, and deviations the
+   project recorded that the library now covers, so they can be deleted from the delta.
+7. **Update the `Packs:` line** in `AGENTS.md` if the library `version` in `manifest.json`
+   changed. Do not otherwise edit `AGENTS.md`.
+8. **Report.** Skills updated with old → new version and where; skills kept as MODIFIED and
+   why; orphans; new skills available in the installed packs; new delta fields to fill;
+   deviations that can be dropped. Do not claim an update you did not perform.
+
+</details>
+
+With a shell and a clone, the same update is two commands: `scripts/check-drift.sh
+<project>` to see what is behind, then `scripts/install.sh <project> --packs <packs>
+--tools <tools> --force` to reinstall those packs — **only when nothing is MODIFIED**,
+because `--force` overwrites every skill in the named packs.
+
+---
+
 ## First use in a blank project
 
 After installing `core`, tell your agent: **"bootstrap this project"**. The

@@ -13,6 +13,9 @@ All notable changes to this library. Versions follow the library `version` in
   contract shared by `infra` and `cloud-*` packs.
 - Agent-driven install procedure in README, `manifest.json` pack index, `install.sh`,
   `check-drift.sh`, `validate.sh`.
+- README: an agent-followable **update** procedure for bringing installed packs up to the
+  library's current versions, built on the IN SYNC / STALE / MODIFIED / ORPHAN verdicts of
+  `check-drift.sh`; hand-edited copies are never overwritten.
 - Project templates: `AGENTS.template.md`, `CLAUDE.md`, `docs/` tree with ADR, runbook and
   postmortem templates, `Makefile`, `.secrets.example`, `.gitignore`.
 
