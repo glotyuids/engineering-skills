@@ -74,6 +74,8 @@ All notable changes to this library. Versions follow the library `version` in
 
 ### Fixed
 
+- CI: the secret scan diffs the pushed commit range, which a shallow checkout cannot
+  resolve; the checkout now fetches full history.
 - Default branch renamed `master` → `main`. The README install procedure and the manifest
   schema `$id` already pointed at `main`, so both raw-file URLs now resolve; CI triggers on
   `main`.
