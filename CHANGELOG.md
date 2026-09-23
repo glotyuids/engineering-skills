@@ -33,3 +33,9 @@ All notable changes to this library. Versions follow the library `version` in
 - `scripts/validate.py`: patterns that are themselves private (project names, namespaces)
   moved out of the public source into git-ignored `scripts/private-patterns.txt`, loaded
   when present. CI keeps every generic check.
+
+### Fixed
+
+- Default branch renamed `master` → `main`. The README install procedure and the manifest
+  schema `$id` already pointed at `main`, so both raw-file URLs now resolve; CI triggers on
+  `main`.
