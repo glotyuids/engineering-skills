@@ -21,6 +21,12 @@ All notable changes to this library. Versions follow the library `version` in
 
 ### Changed
 
+- `process/security-guidelines` 0.1.0 → 0.1.1: identities asserted by a channel are bound to
+  a principal by a recorded admit step, never believed; a token a third-party API forces into
+  the URL path is contained by a client wrapper that never exposes the URL, wraps errors and
+  refuses redirects.
+- `process/integration-testing` 0.1.1 → 0.1.2: a single-principal product separates the
+  instance instead of the identity; the delta states that the test identity is the owner.
 - `go/go-conventions` 0.1.1 → 0.1.2: an approved secret path where the init system cannot
   carry one — `<NAME>_FILE` owner-only files or password-free DSNs.
 - `go/api-and-events` 0.1.1 → 0.1.2: idempotency for polled feeds — update-id deduplication

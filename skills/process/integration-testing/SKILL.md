@@ -4,7 +4,7 @@ description: Integration and end-to-end tests that run against a real deployed e
 license: Apache-2.0
 metadata:
   source: glotyuids/engineering-skills
-  version: 0.1.1
+  version: 0.1.2
 ---
 
 # Integration testing against a real environment
@@ -128,6 +128,15 @@ and never as an admin.
    not an obstacle to route around by widening the test identity's roles.
 6. **Rotation is normal.** A `401` from the token endpoint usually means the secret was
    rotated, not that the test is broken. Re-fetch and re-run before investigating further.
+
+**When the product admits exactly one principal by design** — a personal assistant, a
+single-owner bot — a second, least-privilege identity cannot exist, and inventing one would
+test a product that does not exist. Separate the *instance* instead of the role: a test bot
+or test account on the same channel, pointed at a non-production deployment, so the owner's
+production key never leaves production. The key the suite does use still travels only
+through the secret-manager path above, never pasted; against production the suite stays
+read-only (section 9); and the project delta states plainly that the test identity *is*
+the owner, so nobody reads "least privilege" as a control that exists.
 
 ### The shared auth helper
 
@@ -383,7 +392,8 @@ The consuming repo supplies:
 - **Gate and environment variable names** and their required values (`<GATE_VAR>`,
   `<ENV_VAR>`), plus which environments exist and which gate unlocks which.
 - **The test identity**: its name in the identity provider, the grant it uses, the exact
-  roles/scopes it holds, and who may grant more.
+  roles/scopes it holds, and who may grant more — or, for a single-principal product, the
+  statement that the test identity is the owner and which separate instance the suite uses.
 - **Credential configuration variable names** (token URL, client id, client secret) and
   the SECRET_MANAGER entry and key that hold the secret, with the concrete fetch command.
 - **The separation mechanism** — build tag, marker, directory, or filter — and the exact

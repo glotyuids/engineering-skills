@@ -1,10 +1,10 @@
 ---
 name: security-guidelines
-description: The application-security rules to follow while writing code — authorisation enforced at the data access layer with the subject taken from the verified credential, allowlist validation at the boundary, output encoding at every interpreter crossing, TLS with certificate verification, deny-by-default and fail-closed behaviour, rate limits and resource bounds, dependency scanning, and the personal-data denylist for logs, errors, analytics and third parties. Use when adding an endpoint, handler, query, job or webhook that touches user-owned data, handling uploads or external input, shelling out, building a query, deciding what to log, adding a dependency, or acting on a security finding. Triggers on "is this secure", "can another user read this", "IDOR", "SQL injection", "sanitise this input", "what am I allowed to log", "PII in logs", "rate limit this endpoint", "certificate verification fails", "we leaked a token".
+description: The application-security rules to follow while writing code — authorisation enforced at the data access layer with the subject taken from the verified credential, allowlist validation at the boundary, output encoding at every interpreter crossing, TLS with certificate verification, deny-by-default and fail-closed behaviour, rate limits and resource bounds, dependency scanning, and the personal-data denylist for logs, errors, analytics and third parties. Use when adding an endpoint, handler, query, job or webhook that touches user-owned data, handling uploads or external input, shelling out, building a query, deciding what to log, adding a dependency, or acting on a security finding. Triggers on "is this secure", "can another user read this", "IDOR", "SQL injection", "sanitise this input", "what am I allowed to log", "PII in logs", "rate limit this endpoint", "certificate verification fails", "we leaked a token", "the API puts the token in the URL", "is this chat user really the owner".
 license: Apache-2.0
 metadata:
   source: glotyuids/engineering-skills
-  version: 0.1.0
+  version: 0.1.1
 ---
 
 # Security guidelines
@@ -96,6 +96,26 @@ whose existence is not itself sensitive.
 | Long-running job acting for a user | carries the subject explicitly; a job is not exempt from scoping |
 | Cached authorisation decision | keyed by subject **and** resource, with a short TTL; never cached client-side as authority |
 
+### 1.5 Identity asserted by a channel
+
+A messaging platform, a chat-bot API or a webhook delivers a sender identity — `from.id`, a
+handle, an account number — that the *channel* vouches for: the message reached you through
+a transport whose credential you hold. That authenticates the message to the platform, not
+the sender to you.
+
+- **Verify the channel first.** A webhook carries a secret token or a signature over the raw
+  body (§6); a polled API is reached with your own credential. Without that check the
+  asserted identity is a number in a request body.
+- **Bind, do not believe.** A channel identity becomes a principal only through an explicit
+  binding an owner or maintainer recorded — an admit step with provenance: who bound it,
+  when, to which principal. A message saying "I am the owner" is data (§1.1). Until a
+  binding exists the sender is an unknown principal with the rights of one, usually none.
+- **Display names, usernames and profile fields are untrusted and mutable.** The binding
+  keys on the stable identifier the channel guarantees, and the authorisation query is
+  scoped by the bound principal, never by the channel field.
+- **A binding is authority-bearing state.** Creation, change and revocation are audited, and
+  a revocation takes effect on the next message.
+
 ## 2. Input validation at the boundary, with an allowlist
 
 Validate where untrusted data enters the process — HTTP request body and parameters, message
@@ -175,6 +195,13 @@ treatment of model output as untrusted input applies here unchanged.
 - **No sensitive data in a URL** — not tokens, not identifiers of other people, not personal
   data. Query strings survive in access logs, proxies, referrer headers, browser history and
   error trackers. Sensitive values travel in the body or an appropriate header.
+- **When a third-party API forces a token into the path** (some bot APIs do), the rule
+  cannot hold on the wire, so it is enforced everywhere else. One client wrapper owns the
+  token and builds every URL, and nothing outside it ever sees a URL. The wrapper wraps
+  every error before it surfaces, because HTTP client errors embed the full URL, token
+  included. It refuses redirects, so the token is never replayed to another host. The URL
+  never reaches a log line, a metric label, a trace span or a panic message — and the
+  token is burned the moment a URL is printed anywhere.
 - **Cookies**: `Secure`, `HttpOnly`, an explicit `SameSite`, narrow path/domain, and a short
   lifetime for anything that authenticates.
 - **Redirects**: a redirect target derived from input is allowlisted, or the feature does not
@@ -331,6 +358,8 @@ system. Reproduce it locally or in a test environment.
 
 - [ ] Every subject identifier used for access decisions comes from the verified credential;
       none is read from the body, query, path or a client-set header.
+- [ ] A channel-asserted identity acts only through a recorded binding to a principal, never
+      on its own claim.
 - [ ] Every query touching user-owned data takes the subject as a required parameter and scopes
       the statement by it — reads, lists, writes, deletes and bulk operations alike.
 - [ ] Another subject's resource is indistinguishable from a missing one.
@@ -341,7 +370,8 @@ system. Reproduce it locally or in a test environment.
 - [ ] No query, command, path, URL or markup is built by concatenation; every crossing into
       another interpreter uses that interpreter's safe construction.
 - [ ] TLS with verification on everywhere; no skip-verify flag in any code path that production
-      can reach; no sensitive data in URLs.
+      can reach; no sensitive data in URLs, and a path-carried third-party token never leaves
+      its client wrapper.
 - [ ] Authorisation, token and policy failures deny rather than allow.
 - [ ] Rate limits and timeouts exist on everything a stranger can call and everything expensive.
 - [ ] No debug, profiling or introspection surface is enabled in production.
@@ -359,6 +389,8 @@ The consuming repo supplies:
 
 - **The credential claim that carries the subject identifier**, the middleware or helper that
   resolves it, and the type used to pass it down the stack.
+- **Channel identities** — which channels assert a sender identity, the binding record that
+  maps it to a principal, and who may create or revoke a binding.
 - **The data classification** — the concrete field-level denylist for this product, plus the
   redacting types and the log fields that are considered safe.
 - **The rate-limit tiers** and where they are enforced (edge, gateway, service), plus the
