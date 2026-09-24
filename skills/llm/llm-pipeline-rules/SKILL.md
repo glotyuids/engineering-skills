@@ -1,10 +1,10 @@
 ---
 name: llm-pipeline-rules
-description: Non-negotiable rules for a production pipeline built on a language model — the model classifies and the code decides, all model output and all user content is untrusted, structured output is schema-validated and fails closed after a bounded, declared number of repairs (default one), evidence is extracted before anything is written, prompt packs carry a dated version so a regression is bisectable, every call goes through one model boundary with a budget, a timeout and an idempotency key, and logs carry prompt hashes rather than prompt bodies. Use when adding or changing an LLM call, designing a generation or agent pipeline, editing prompts and templates, adding retrieval or a judge stage, wiring an LLM proxy or router, or swapping models. Trigger phrases "add an LLM step", "change this prompt", "prompt injection", "the model returned invalid JSON", "switch to another model", "why did the output change", "add a guardrail", "the LLM bill blew up".
+description: Non-negotiable rules for a production pipeline built on a language model — the model classifies and the code decides, all model output and all user content is untrusted, structured output is schema-validated and fails closed after a bounded, declared number of repairs (default one), evidence is extracted before anything is written, prompt packs carry a dated version so a regression is bisectable, every call goes through one model boundary with a budget, a timeout and an idempotency key (kept off the wire unless the provider honours it), and logs carry prompt hashes rather than prompt bodies. Use when adding or changing an LLM call, designing a generation or agent pipeline, editing prompts and templates, adding retrieval or a judge stage, wiring an LLM proxy or router, or swapping models. Trigger phrases "add an LLM step", "change this prompt", "prompt injection", "the model returned invalid JSON", "switch to another model", "why did the output change", "add a guardrail", "the LLM bill blew up".
 license: Apache-2.0
 metadata:
   source: glotyuids/engineering-skills
-  version: 0.1.1
+  version: 0.1.2
 ---
 
 # LLM pipeline rules — the model proposes, the code disposes
@@ -186,10 +186,13 @@ SDK.**
 
 - Call sites name a **role alias** — `classifier`, `reasoning`, `writer`, `judge`,
   `cheap` — never a concrete model id.
-- The alias → (provider, model, parameters) map is **configuration**, versioned and
-  per-environment. Swapping a model, or routing one alias to a different provider, is a
-  config change plus a golden-set run (section 9). It is never a code change, and never a
-  change in more than one place.
+- The alias → (provider, model, parameters) map is **data outside code**, versioned and
+  per-environment: plain configuration in a simple deployment, or admitted state with an
+  audit trail where the choice of model carries authority — spend, data residency, which
+  provider sees which content. Swapping a model, or routing one alias to a different
+  provider, is a change to that data plus a golden-set run (section 9). It is never a code
+  change, and never a change in more than one place. If the `go-conventions` skill is
+  installed, its configuration-versus-policy rule decides which of the two it is.
 - The boundary is the single place that: prepends the base system prompt, disables tools
   and browsing, enforces budgets and timeouts, counts retries, applies the denylist checks,
   emits metrics, and logs hashes (section 10).
@@ -234,6 +237,12 @@ SDK.**
     mismatch**, so a resumed run cannot pick up a result an earlier template produced.
 - Retries — at the boundary, at the worker, or after a crash — present the same key, and so
   does a repair (section 4); only a validated result is stored under it.
+- **The key lives in the store; it goes on the wire only when the provider honours it.**
+  Some HTTP clients — Go's standard transport is one — treat any request carrying an
+  `Idempotency-Key` or `X-Idempotency-Key` header as safe to replay, and retry it after a
+  network error on their own, beneath the boundary's retry counter. Send the header only
+  to a provider that documents idempotent semantics for it; for every other provider the
+  boundary's own store is the deduplication and the header is never set.
 - A repeated key returns the stored result instead of re-calling. Without this, a worker
   that is retried after a timeout pays twice and produces two different texts, one of which
   is already downstream.
@@ -270,6 +279,12 @@ does the job; the red team proves it still refuses.
 (schema validity, required fields present, evidence present and within bounds, the
 classifier's chosen command, refusal where refusal is correct). Record pass rate, cost and
 latency per pack version so a "harmless" prompt tweak that doubles the cost is visible.
+
+The assertions are **executable scorers** — code that checks the property — and the gate
+never depends on a model judge. A judge-scored row (a groundedness verdict, a rubric score)
+is an additional signal; when the judge cannot run — one admitted provider, the judge's
+provider disabled, a budget cap — the gate is the executable scorers alone, and the run
+records that the judge rows were **skipped**, never counts them as passed.
 
 **Red team** — at minimum:
 
@@ -329,7 +344,8 @@ behaviour:
 - [ ] No control-flow branch reads free-form prose
 - [ ] Model referenced by role alias only; alias map is config, resolved model recorded
 - [ ] Per-call max output tokens, timeout and retry budget set; job/user budget checked
-- [ ] Idempotency key set and honoured across retries and worker restarts
+- [ ] Idempotency key set and honoured across retries and worker restarts, and sent as a
+      header only to a provider that documents it
 - [ ] Golden tests updated or added; pass rate, cost and latency recorded for the version
 - [ ] Red-team cases run, including at least one refusal/no-fabrication case
 - [ ] Unit + integration tests updated, including full stage order
@@ -344,12 +360,14 @@ The consuming repo supplies:
 
 - The concrete stage list and their order, plus which optional stages exist.
 - The prompt pack location, its `template_id` namespace, and the current version.
-- The role aliases in use and where the alias → model map lives per environment.
+- The role aliases in use, where the alias → model map lives per environment, and whether it
+  is configuration or admitted state with an audit trail.
 - The schema definitions and the validator; where strictness is configured.
 - The durable task store backing the orchestrator, which idempotency-key derivation is in
   use (stateless hash, or run/step/attempt), and the declared repair count per template.
 - Per-call, per-job and per-user budget values, and the timeout per alias.
-- Where the golden set and red-team cases live, and the command that runs them.
+- Where the golden set and red-team cases live, the command that runs them, and which rows
+  need a judge.
 - The redaction marker, the object store holding raw snapshots, its access policy and its
   retention period.
 - The project's own content-quality bar, which this skill deliberately does not define.

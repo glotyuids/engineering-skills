@@ -21,6 +21,10 @@ All notable changes to this library. Versions follow the library `version` in
 
 ### Changed
 
+- `llm/llm-pipeline-rules` 0.1.1 → 0.1.2: the idempotency header goes on the wire only to a
+  provider that documents it, because HTTP transports retry on it beneath the retry budget;
+  the alias map may be admitted state rather than configuration; golden-set gates rely on
+  executable scorers, and skipped judge rows are recorded, never passed.
 - `process/security-guidelines` 0.1.0 → 0.1.1: identities asserted by a channel are bound to
   a principal by a recorded admit step, never believed; a token a third-party API forces into
   the URL path is contained by a client wrapper that never exposes the URL, wraps errors and
