@@ -1,10 +1,10 @@
 ---
 name: postgres-patterns
-description: Schema, indexing, query, JSONB, transaction and ownership patterns for PostgreSQL behind a service — naming and type conventions, surrogate vs natural keys, soft versus hard delete, always-parameterized SQL, what to index and in which column order, partial and covering indexes, spotting N+1 and OFFSET pagination, JSONB guards, short transactions and lock ordering, work-queue patterns, connection-pool sizing against the MANAGED_PG connection limit, row-level security versus repository-level scoping, enumerating owners under forced row security, and the diagnostic queries for slow queries, unused indexes and blocking locks. Use when the user says "design this table", "review this schema", "why is this query slow", "add an index", "we are getting deadlocks", "too many connections", "how do we scope queries per user", "should this column be JSONB", "fix the N+1", "the query returns no rows in production", or when reviewing SQL before it ships.
+description: Schema, indexing, query, JSONB, transaction and ownership patterns for PostgreSQL behind a service — naming and type conventions, surrogate vs natural keys, soft versus hard delete, always-parameterized SQL, what to index and in which column order, partial and covering indexes, spotting N+1 and OFFSET pagination, JSONB guards, short transactions and lock ordering, work-queue patterns, connection-pool sizing against the MANAGED_PG connection limit, row-level security versus repository-level scoping, enumerating owners under forced row security, rebuildable versus operational tables, and the diagnostic queries for slow queries, unused indexes and blocking locks. Use when the user says "design this table", "review this schema", "why is this query slow", "add an index", "we are getting deadlocks", "too many connections", "how do we scope queries per user", "should this column be JSONB", "fix the N+1", "the query returns no rows in production", or when reviewing SQL before it ships.
 license: Apache-2.0
 metadata:
   source: glotyuids/engineering-skills
-  version: 0.1.1
+  version: 0.1.2
 ---
 
 # PostgreSQL patterns
@@ -73,6 +73,15 @@ Mixing the two in one schema is fine; mixing them in one table's access paths is
 "deleted" rows come back in one endpoint and not another. If soft delete is the rule, put
 the filter in a view or in the single canonical repository method rather than in 40 call
 sites.
+
+**Rebuildable versus operational state.** Where projections are rebuilt from an event log,
+classify every table when it is created: **source of truth** (the events — never truncated),
+**rebuildable** (a projection or read model, dropped and rebuilt from the events, so nothing
+lives there that the events do not contain), or **operational** (processed-update ids,
+single-use nonces, outbox rows, leases, idempotency keys — facts about *delivery*, not about
+the domain, that no event can regenerate). Operational rows live in their own tables, never
+as columns of a projection, and the rebuild procedure names exactly which tables it
+truncates. A nonce stored in a projection is re-armed by the next rebuild.
 
 ## 2. Parameterize — always
 
@@ -476,6 +485,8 @@ The consuming repo supplies:
   (`app.<something>`).
 - Money representation — `numeric` or integer minor units — and the unit.
 - Whose clock stamps `created_at`: the database default or the application's injected clock.
+- Which tables are rebuildable projections, which hold operational state, and the rebuild
+  procedure's truncate list.
 - The owner directory table (or the maintenance role) that system tasks use to enumerate
   owners under forced row security.
 - Whether row-level security is in force, which tables carry it, and — honestly — whether the

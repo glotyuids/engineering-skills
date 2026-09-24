@@ -21,6 +21,12 @@ All notable changes to this library. Versions follow the library `version` in
 
 ### Changed
 
+- `database/postgres-patterns` 0.1.1 → 0.1.2: tables are classified as source of truth,
+  rebuildable projection or operational state; operational rows (processed ids, nonces,
+  outbox, leases) live apart from projections and survive a rebuild.
+- `database/database-migrations` 0.1.1 → 0.1.2: a lower-numbered migration merged later is
+  silently skipped, so parallel branches take the next free number at merge, never a reserved
+  range; a self-migrating service gets two roles and a tracker grant for readiness.
 - `go/go-conventions` 0.1.0 → 0.1.1: the composition root may be a `New(deps)` package shared
   by `main` and tests; engine packages (interpreters, compilers) are a leaf layer with their
   own diagnostics; `domain` may import transport-free generated contract types when the

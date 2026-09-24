@@ -4,7 +4,7 @@ description: How to write, run and recover schema migrations without downtime or
 license: Apache-2.0
 metadata:
   source: glotyuids/engineering-skills
-  version: 0.1.1
+  version: 0.1.2
 ---
 
 # Database migrations
@@ -55,6 +55,13 @@ migrations/
   merges second must renumber *before* merge — never after the file has been applied
   anywhere. Timestamp prefixes avoid the collision at the cost of unreadable ordering; pick
   one convention repo-wide and state it in the project delta.
+- **A lower number merged later is silently skipped.** Version-table tools only ever apply
+  the next version *above* the database's current one, so a branch that took `000004` and
+  merges after `000005` is already applied leaves every existing database without
+  `000004` — no error, no dirty flag. Parallel branches therefore take the next *free*
+  number at merge time, never a number reserved in advance and never a private range. And
+  a database sitting on a version whose file was renamed or removed applies nothing at
+  all, again without an error.
 - `[!]` **If a table is user-owned and the project isolates rows per user, the row-level
   security enablement and its policy ship in the same migration that creates the table**,
   never as a follow-up — a table that exists for even one deploy without its policy is a
@@ -296,6 +303,28 @@ the migration itself:
 - The job must be a **Job**, not an init container on the Deployment: an init container runs
   once per pod, so N replicas race, and it re-runs on every restart.
 
+### A service that migrates itself
+
+A daemon with no orchestrator — a single binary under an init system — migrates on start,
+before it serves. What changes:
+
+- **Two roles.** The migration runs as a *migration owner* that holds DDL rights and owns
+  the tables; the service then serves as the *application role*, which holds only DML on
+  those tables and is not their owner. One role for both makes every row-security policy
+  decorative unless it is `FORCE`d, and hands a compromised request path `DROP TABLE`.
+- **Readiness reads the version table.** Grant the application role `SELECT` on the
+  tracker (`schema_migrations` or the tool's equivalent) so the readiness check can assert
+  that the applied version equals the latest embedded migration and the dirty flag is
+  clear. Not ready until that holds; a failed migration keeps the process not ready — it
+  does not serve on a stale schema.
+- **One migrator at a time still applies.** Two instances starting together contend; the
+  tool's per-database advisory lock serialises them, and the loser finds the version
+  already advanced and does nothing. Verify your tool takes that lock before running two
+  instances against one database.
+- **The same files, embedded.** The migrations ship inside the binary, so the code and the
+  schema it expects are one artefact; rolling back to the previous binary needs the
+  previous schema to still be compatible (§6), exactly as with a hook Job.
+
 ### Cluster-wide objects: roles
 
 A role belongs to the cluster, not to the database the migration runs in. Two
@@ -392,6 +421,8 @@ from a developer machine against production without recording what was done.
 - [ ] The down migration's data loss, if any, is stated in a comment.
 - [ ] Policies are drop-then-create; any role creation carries the duplicate-object guard,
       and no `down` drops a role.
+- [ ] Parallel-branch migrations took the next free number at merge; nothing numbered below
+      an already-applied version was added.
 
 ## Project delta
 
@@ -411,4 +442,6 @@ The consuming repo supplies:
   row-security block in the creating migration.
 - Whether roles are provisioned by infrastructure or by a migration, and the migrator's
   privileges (`CREATEROLE` or not).
+- Whether the service migrates itself on start, the migration-owner and application roles,
+  and the tracker grant the readiness check relies on.
 - The environments a migration must pass through before production.
