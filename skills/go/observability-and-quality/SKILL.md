@@ -1,10 +1,10 @@
 ---
 name: observability-and-quality
-description: What a service must expose so a failure can be seen and explained — liveness vs readiness and why liveness must never check dependencies, structured logging with a correlation id propagated through the whole call chain, log levels, the never-log-secrets-or-personal-data rule and connection-string redaction, making silent failures observable, the metric set worth having (request rate/latency/errors, dependency latency, queue depth, consumer lag) with cardinality discipline, the linter set with the approved answers to gosec G204/G304, and the test policy. Use when adding a health endpoint, wiring a logger or metrics, or when the user says "the pod keeps restarting", "readiness is flapping", "we can't tell what happened in prod", "the metrics backend fell over", "what should we log", "what metrics do we need", "which linters do we run", "add tests for this", "why did this fail silently", or when reviewing observability before a first deploy.
+description: What a service must expose so a failure can be seen and explained — liveness vs readiness and why liveness must never check dependencies, structured logging with a correlation id propagated through the whole call chain, log levels, the never-log-secrets-or-personal-data rule and connection-string redaction, making silent failures observable, the metric set worth having (request rate/latency/errors, dependency latency, queue depth, consumer lag) with cardinality discipline, the linter set with the approved answers to gosec findings on CLIs and test code, health without an orchestrator, and the test policy. Use when adding a health endpoint, wiring a logger or metrics, or when the user says "the pod keeps restarting", "readiness is flapping", "we can't tell what happened in prod", "the metrics backend fell over", "what should we log", "what metrics do we need", "which linters do we run", "add tests for this", "why did this fail silently", or when reviewing observability before a first deploy.
 license: Apache-2.0
 metadata:
   source: glotyuids/engineering-skills
-  version: 0.1.1
+  version: 0.1.2
 ---
 
 # Observability and quality
@@ -70,6 +70,19 @@ Readiness rules:
 
 If the infra pack's `kubernetes-helm` skill is installed, follow it for probe timings,
 thresholds and scrape annotations; otherwise follow the project's own conventions.
+
+**Without an orchestrator** — a daemon under launchd or systemd, a single binary on a host —
+nothing probes these endpoints, and the process must not assume something will. Then:
+
+- `/readyz` (or a `status` subcommand over a local socket) serves the **operator**: it is
+  what a human runs to learn whether the process is doing its job, so the body carries the
+  answer, not only the status code.
+- **Every background loop reports itself** in that body — running, with its last successful
+  tick; or disabled, with the reason (no provider admitted, feature off, policy missing). A
+  loop that silently does not run is the silent failure of §5 in another shape.
+- Liveness is the init system's restart-on-exit, plus its watchdog where one exists
+  (systemd's notify socket, for example): a wedged process must exit or stop feeding the
+  watchdog, so bound every loop iteration with a deadline and treat a missed one as fatal.
 
 ## 2. Structured logging
 
@@ -153,7 +166,12 @@ print the same id on failure.
 - contact and identity data — email addresses, phone numbers, names, precise location;
 - request and response bodies of endpoints carrying any of the above, and the
   `Authorization` / `Cookie` headers;
-- any field the product treats as private.
+- any field the product treats as private;
+- **the content an error refused.** A parser, validator or adapter that rejects input must
+  not quote the input in its message — not the page body that failed to parse, not the
+  account id that was not admitted, not the line that broke the schema. The message names
+  the reason class, the field or position, and a length or a hash; `invalid input: <input>`
+  is the most common way the denylist above reaches a log.
 
 **Log identifiers and shapes instead**: `user_id`, request id, byte counts, item counts,
 enum outcomes, durations, error class.
@@ -331,6 +349,11 @@ When asked:
   in some repos. If the `go-conventions` skill is installed, follow its library table.
 - **No `time.Sleep` for synchronization** — channels, `sync.WaitGroup`, or poll-with-
   deadline.
+- **The one accepted wait: proving absence.** "No second send happened" cannot be asserted
+  at an instant. Advance an injected clock past the point where the effect would have
+  fired and assert the counter is unchanged; only where the clock cannot be injected, wait
+  a bounded few loop ticks with a comment naming what the wait proves. A bare sleep with
+  no assertion after it proves nothing.
 - **Deterministic**: injected clock, seeded randomness. A flaky test is fixed or deleted,
   never retried in CI.
 - Always `-race`.
@@ -395,15 +418,12 @@ findings and a `//nolint` habit.
   `math/rand` where `crypto/rand` is required, world-readable file permissions,
   unvalidated redirects, and TLS verification disabled "for now".
 
-**`gosec` findings that fire on legitimate code.** Two rules trip on test infrastructure and
-CLIs by design; the approved patterns are:
-
-| Finding | Legitimate case | Approved pattern |
-|---|---|---|
-| G204 — subprocess launched with a variable | a test harness or CLI that spawns a binary | the binary's path comes from configuration or the environment, never from argv or user input; arguments go in a slice, never through a shell |
-| G304 — file path from tainted input | a CLI that opens the file the user named | open it through `os.Root` (Go 1.24+) rooted at the permitted directory, or `filepath.Clean` plus a prefix check against that directory |
-
-Where the pattern is followed and the finding still fires, the suppression is
+**`gosec` findings that fire on legitimate code.** Several rules trip on CLIs, test
+infrastructure and API clients by design — G204 (subprocess with a variable), G302 (file
+mode with `chmod`), G304 and G703 (a user-named path), G704 (a request to a variable URL).
+Each has an approved restructuring, listed in
+[`references/gosec-patterns.md`](references/gosec-patterns.md); apply the restructuring
+first. Where it is applied and the finding still fires, the suppression is
 **pre-approved** — in the form `//nolint:gosec // G304: path is rooted at <dir> via os.Root`,
 rule id and reason both mandatory. (`gosec` run standalone rather than through
 `golangci-lint` reads its own form, `//#nosec G304 -- <reason>`.) Every other `gosec`
@@ -422,12 +442,15 @@ run `golangci-lint run` per module. The local verification gate as a whole is
 - [ ] `/readyz` checks every dependency the service cannot serve without, each with its own
       deadline, result cached briefly, and flips to not-ready on shutdown before the
       listener closes.
+- [ ] Without an orchestrator, the readiness body lists every loop as running or disabled
+      with a reason.
 - [ ] Logs are structured, one line per event, carrying service, version, env, level and
       correlation id on every line.
 - [ ] The correlation id is accepted or generated at the boundary, held in the context,
       propagated to every outbound call, message and job, and returned to the caller.
 - [ ] Redaction is enforced at the sink; no DSN, token or user content can reach a log
       line, including the startup config summary.
+- [ ] No error or refusal message embeds the content it rejected.
 - [ ] Every deliberate fallback is logged at `warn` **and** counted.
 - [ ] `/metrics` exposes request rate/latency/errors, dependency latency, backlog where
       applicable, and the runtime collector — and is not publicly reachable.

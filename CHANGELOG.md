@@ -21,6 +21,14 @@ All notable changes to this library. Versions follow the library `version` in
 
 ### Changed
 
+- `go/go-conventions` 0.1.1 → 0.1.2: an approved secret path where the init system cannot
+  carry one — `<NAME>_FILE` owner-only files or password-free DSNs.
+- `go/api-and-events` 0.1.1 → 0.1.2: idempotency for polled feeds — update-id deduplication
+  in the effect's transaction, derived downstream keys, single-use nonces.
+- `go/observability-and-quality` 0.1.1 → 0.1.2: readiness without an orchestrator lists every
+  loop and why a disabled one is off; refusal and parser messages never echo the content
+  they rejected; the bounded wait that proves absence is the named exception to no-sleep;
+  the gosec table moved to `references/gosec-patterns.md` and now covers G302, G703 and G704.
 - `database/postgres-patterns` 0.1.1 → 0.1.2: tables are classified as source of truth,
   rebuildable projection or operational state; operational rows (processed ids, nonces,
   outbox, leases) live apart from projections and survive a rebuild.

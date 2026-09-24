@@ -1,10 +1,10 @@
 ---
 name: go-conventions
-description: Service-internal layout, the clean-architecture dependency rule, default library set, go.mod/monorepo mechanics, per-subject data ownership, configuration versus authority-bearing policy, error handling and the verification gate for Go services. Use when writing or reviewing Go code, adding a package or an adapter, choosing a Go library, wiring dependencies in the composition root, writing a repository or a sentinel error, setting up go.mod and replace directives in a monorepo, or when asked "where does this file go", "what is our Go layout", "which router/logger/Postgres driver do we use", "how do we scope queries per user", "can I add this dependency", "is this backend work done", "where does the rules engine go", "is this config or policy", or "can domain import the generated types".
+description: Service-internal layout, the clean-architecture dependency rule, default library set, go.mod/monorepo mechanics, per-subject data ownership, configuration versus authority-bearing policy, error handling and the verification gate for Go services. Use when writing or reviewing Go code, adding a package or an adapter, choosing a Go library, wiring dependencies in the composition root, writing a repository or a sentinel error, setting up go.mod and replace directives in a monorepo, or when asked "where does this file go", "what is our Go layout", "which router/logger/Postgres driver do we use", "how do we scope queries per user", "can I add this dependency", "is this backend work done", "where does the rules engine go", "is this config or policy", "can domain import the generated types", or "how does the daemon get its secret".
 license: Apache-2.0
 metadata:
   source: glotyuids/engineering-skills
-  version: 0.1.1
+  version: 0.1.2
 ---
 
 # Go conventions
@@ -331,6 +331,13 @@ toggles, the name of the environment:
 - No secret is ever a default value in code, and no secret is logged, including at debug
   level. If the `secrets-management` skill is installed, follow it for how secrets reach
   the process; otherwise follow the project's own conventions.
+- **Where the process manager cannot hand over a secret safely** — a launchd plist, for
+  example, can only carry literal environment values — indirect through the environment
+  rather than around it: a `<NAME>_FILE` variable naming an owner-only file (mode `0600`)
+  that `Load()` reads, refusing a file readable by group or world, and accepting `<NAME>`
+  or `<NAME>_FILE` but never both; or a password-free DSN through peer or socket
+  authentication or the driver's password file. An init system's credentials directory
+  (systemd's, for example) is the same pattern with the file supplied by the init system.
 
 **Authority-bearing policy** — spend caps and budgets, grants and allowlists, release pins,
 trust roots, anything whose change lets someone spend money, widen access or run a
@@ -407,3 +414,6 @@ The consuming repository must supply:
 12. **Whether `domain` imports generated contract types**, and where the generated package
     lives (`internal/gen/` or the project's equivalent).
 13. **The engine package**, if one exists, and how its diagnostics map to domain errors.
+14. **How secrets reach the process outside a cluster** — `<NAME>_FILE` files, a password
+    file, or the init system's credentials — where the `secrets-management` skill does not
+    cover the deployment.
