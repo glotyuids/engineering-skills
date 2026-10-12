@@ -25,7 +25,7 @@
     {
       "name": "infra",
       "source": "./plugins/infra",
-      "description": "Build/deploy pipeline, Terraform, Ansible, Kubernetes/Helm, Makefiles and secrets \u2014 written against capabilities, not a cloud provider.",
+      "description": "Build/deploy pipeline, Terraform, Ansible, Kubernetes/Helm, Makefiles and secrets — written against capabilities, not a cloud provider.",
       "version": "0.1.0",
       "license": "Apache-2.0",
       "category": "engineering"
@@ -85,6 +85,19 @@
       "version": "0.1.0",
       "license": "Apache-2.0",
       "category": "engineering"
+    },
+    {
+      "name": "sliceworks",
+      "source": {
+        "source": "github",
+        "repo": "glotyuids/sliceworks",
+        "ref": "main"
+      },
+      "description": "The development life cycle the packs run inside: milestones with ten phases from spark to learn, one ledger of checkable rows, a decisions ledger, worktree-isolated slice implementers behind frozen contracts, verification tiers, independent review, budget and money guards, a survey and dispatcher, and an intake pipeline for requests. Installed from its own repository.",
+      "version": "0.4.0",
+      "license": "Apache-2.0",
+      "category": "engineering",
+      "homepage": "https://github.com/glotyuids/sliceworks"
     }
   ]
 }

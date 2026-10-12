@@ -26,6 +26,18 @@ pack, not rewriting anything.
 
 Machine-readable index: [`manifest.json`](manifest.json).
 
+### The life cycle around the packs
+
+The packs say how to do each engineering thing. [`sliceworks`](https://github.com/glotyuids/sliceworks) is the development life cycle they run inside: milestones with ten phases (spark, discover, decide, design, plan, build, accept, release, operate, learn), one ledger of checkable rows, a decisions ledger with veto windows, worktree-isolated slice implementers behind frozen contracts, verification tiers, independent review, budget and money guards, a project survey and dispatcher, and an intake pipeline for requests typed in chat. It is listed in this marketplace and installed from its own repository:
+
+```bash
+/plugin marketplace add glotyuids/engineering-skills
+/plugin install sliceworks@engineering-skills
+/sliceworks:start
+```
+
+Its survey detects which packs a project has installed and recommends the rest for the project's stack; its phase skills call `review-plan`, `documentation-standards`, `incident-response`, `bootstrap-project` and the infra pack where they are present.
+
 ---
 
 ## Install
@@ -90,7 +102,7 @@ Do not install `lang-ru` unless the project ships Russian-language UI or content
 
 Then install packs individually — `/plugin install infra@engineering-skills`,
 `/plugin install cloud-yandex@engineering-skills`. Each pack plugin carries its own skills
-and agents.
+and agents. `/plugin install sliceworks@engineering-skills` installs the life cycle (see above).
 
 ### Option 3 — script
 
