@@ -1,8 +1,8 @@
 {
   "name": "engineering-skills",
   "owner": {
-    "name": "glotyuids",
-    "url": "https://github.com/glotyuids/engineering-skills"
+    "name": "sudo-sane",
+    "url": "https://github.com/sudo-sane/engineering-skills"
   },
   "description": "Tool-agnostic engineering skills and guidelines. Install packs individually.",
   "plugins": [
@@ -90,14 +90,14 @@
       "name": "sliceworks",
       "source": {
         "source": "github",
-        "repo": "glotyuids/sliceworks",
+        "repo": "sudo-sane/sliceworks",
         "ref": "main"
       },
       "description": "The development life cycle the packs run inside: milestones with ten phases from spark to learn, one ledger of checkable rows, a decisions ledger, worktree-isolated slice implementers behind frozen contracts, verification tiers, independent review, budget and money guards, a survey and dispatcher, and an intake pipeline for requests. Installed from its own repository.",
       "version": "0.7.0",
       "license": "Apache-2.0",
       "category": "engineering",
-      "homepage": "https://github.com/glotyuids/sliceworks"
+      "homepage": "https://github.com/sudo-sane/sliceworks"
     }
   ]
 }
