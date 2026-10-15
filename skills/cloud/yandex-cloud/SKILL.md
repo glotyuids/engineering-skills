@@ -3,7 +3,7 @@ name: yandex-cloud
 description: Resolves vendor-neutral infrastructure capabilities (MANAGED_K8S, REGISTRY, SECRET_MANAGER, MANAGED_PG, CACHE, TFSTATE_BACKEND, LB, IAM) to concrete Yandex Cloud services, with the production traps each one carries. Use when deploying to or operating on Yandex Cloud, or when a generic infra skill names a capability and you need the real service, Terraform module, CLI command, identifier shape or DSN behind it. Trigger phrases - "Yandex Cloud", "yc CLI", "Managed Service for Kubernetes", "Container Registry", "cr.yandex", "Lockbox", "External Secrets Operator", "Managed PostgreSQL", "Valkey", "Object Storage tfstate backend", "ALB / NodePort", "IAM token", "service account key", "folder id", "cluster context", "unable to read CA file", "sslrootcert".
 license: Apache-2.0
 metadata:
-  source: glotyuids/engineering-skills
+  source: sudo-sane/engineering-skills
   version: 0.1.0
 ---
 

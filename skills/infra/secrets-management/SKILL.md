@@ -3,7 +3,7 @@ name: secrets-management
 description: How secrets are stored, synced and consumed so that values never enter git and exist only on the operator's machine and in SECRET_MANAGER. Use when adding a secret or third-party API key, writing or reviewing a `.secrets.example` / `*.env.example` contract file, wiring a `make secrets-sync` step, deciding how a service reads a credential (secret reference vs ConfigMap vs image layer), rotating a credential, redacting DSNs and tokens in logs, adding gitleaks-style scanning to pre-commit/CI, or handling a leaked key. Trigger phrases: "add a secret", "where do I put this API key", "secrets sync", "the pod can't find the secret", "rotate the key", "we committed a token", "is this safe to log".
 license: Apache-2.0
 metadata:
-  source: glotyuids/engineering-skills
+  source: sudo-sane/engineering-skills
   version: 0.1.0
 ---
 

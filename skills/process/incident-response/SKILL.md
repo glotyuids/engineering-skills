@@ -3,7 +3,7 @@ name: incident-response
 description: Investigate a live production problem without making it worse, then write it up. Covers the read-only guardrail (no restarts, no deletions, everything in UTC, and mitigating vs investigating as separate decisions with separate authority), mapping a user-visible identifier onto internal correlation keys, the investigation ladder from recent deploys and config changes through logs and data stores to a one-off diagnostic workload, cleanup and personal-data scrubbing before anything is reported, ranked hypotheses with confidence instead of a single guess, the incident report format, and the handoff to a postmortem. Use when the user says "production is down", "users are reporting X", "investigate/troubleshoot/debug this incident", "what actually happened in prod", "triage this alert", "the deploy broke something", "why did this flow fail for that user", "pull the real data from prod", or "write the postmortem".
 license: Apache-2.0
 metadata:
-  source: glotyuids/engineering-skills
+  source: sudo-sane/engineering-skills
   version: 0.1.0
 ---
 

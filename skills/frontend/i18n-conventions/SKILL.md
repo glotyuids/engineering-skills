@@ -3,7 +3,7 @@ name: i18n-conventions
 description: Internationalisation that survives the second locale — one catalogue per locale with flat dot-delimited keys, key-set parity enforced at compile time so a missing translation is a build failure instead of a silent fallback to the wrong language, CLDR plural categories resolved per locale (one/few/many, never an `n === 1` ternary), placeholder interpolation instead of string concatenation, a glossary so one concept is always one word, an explicit do-not-localize list (wire enums, ids, route paths, brand tokens), a string-expansion budget for layout, and flagging untranslated upstream text rather than faking it. Use when the user says "add a second language", "translate the UI", "i18n", "l10n", "localize this screen", "add Russian", "plural forms", "this string is hardcoded", "missing translation key", "language switcher", "why is this screen half English", or when adding any user-facing string to an app that ships more than one language.
 license: Apache-2.0
 metadata:
-  source: glotyuids/engineering-skills
+  source: sudo-sane/engineering-skills
   version: 0.1.0
 ---
 

@@ -3,7 +3,7 @@ name: writing-honesty-gates
 description: Honesty gates for any product that writes text on a user's behalf — cover letters, bios, profiles, marketing copy, summaries, any generated first-person claim. Defines the hard rules (never invent a fact, metric, tool, employer, date, title, credential or fluency the user did not supply), the difference between an honest bridge and a fabrication, three-layer enforcement (honesty preamble, a critique gate that blocks release above a risk threshold, and a deterministic evidence ledger), the refusal taxonomy and how to refuse without moralising, what must always be surfaced to the user, and the bans on stuffing keywords for an automated screen, addressing instructions at another system's model, and regulated advice. Use when building or reviewing a generative writing feature, writing its prompts or its critic, or handling "add skills I don't have", "say I'm fluent", "beat the filter", "round the numbers up", "just ship it".
 license: Apache-2.0
 metadata:
-  source: glotyuids/engineering-skills
+  source: sudo-sane/engineering-skills
   version: 0.1.0
 ---
 

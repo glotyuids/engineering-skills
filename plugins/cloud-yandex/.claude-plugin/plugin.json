@@ -3,8 +3,8 @@
   "description": "Capability-to-service mapping and production traps for Yandex Cloud.",
   "version": "0.1.0",
   "author": {
-    "name": "glotyuids",
-    "url": "https://github.com/glotyuids/engineering-skills"
+    "name": "sudo-sane",
+    "url": "https://github.com/sudo-sane/engineering-skills"
   },
   "license": "Apache-2.0",
   "keywords": [

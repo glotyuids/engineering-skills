@@ -40,4 +40,4 @@ Install `cloud-yandex` to resolve them, or write your own vendor skill — see C
 
 Install: `/plugin install infra@engineering-skills`, or
 `./scripts/install.sh <project> --packs infra`, or ask your agent to install the
-**infra** pack from `glotyuids/engineering-skills`.
+**infra** pack from `sudo-sane/engineering-skills`.

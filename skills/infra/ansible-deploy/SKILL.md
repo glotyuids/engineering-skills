@@ -3,7 +3,7 @@ name: ansible-deploy
 description: Ansible as the deploy orchestrator — inventory per environment, the playbook and role set, the service catalog every new service must be registered in, the deploy phase order, idempotence rules and the parallelism cap. Use when adding a service to the deploy pipeline, writing or changing a playbook, role, inventory or group_vars file, running a deploy through Ansible, or when the user says "add the service to Ansible", "it built but never deployed", "my service isn't in the deploy", "the playbook skipped it", "deploy just one service", "why did Ansible say changed", "run the deploy playbook", "make deploy does nothing", or "add it to the services list". Vendor-neutral — written against capabilities (MANAGED_K8S, REGISTRY, SECRET_MANAGER, MANAGED_PG, TFSTATE_BACKEND, LB, IAM), never a named cloud provider.
 license: Apache-2.0
 metadata:
-  source: glotyuids/engineering-skills
+  source: sudo-sane/engineering-skills
   version: 0.1.0
 ---
 

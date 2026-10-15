@@ -3,7 +3,7 @@ name: cicd-build-deploy
 description: The build and deploy pipeline — Make as the single entrypoint, container image build rules, deploy orchestration order, cluster-context pinning and production safety. Use when writing or changing a Dockerfile, adding Make targets, building or pushing images, running or troubleshooting a deploy to staging or production, wiring CI, or when the user says "deploy this", "ship it to prod", "make deploy", "the build is broken", "why was my service skipped", "roll it back", or "set up CI/CD". Vendor-neutral — the pipeline is described against capabilities (MANAGED_K8S, REGISTRY, SECRET_MANAGER, MANAGED_PG, TFSTATE_BACKEND, LB, IAM), never against a named cloud provider.
 license: Apache-2.0
 metadata:
-  source: glotyuids/engineering-skills
+  source: sudo-sane/engineering-skills
   version: 0.1.0
 ---
 

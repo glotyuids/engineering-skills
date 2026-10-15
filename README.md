@@ -28,10 +28,10 @@ Machine-readable index: [`manifest.json`](manifest.json).
 
 ### The life cycle around the packs
 
-The packs say how to do each engineering thing. [`sliceworks`](https://github.com/glotyuids/sliceworks) is the development life cycle they run inside: milestones with ten phases (spark, discover, decide, design, plan, build, accept, release, operate, learn), one ledger of checkable rows, a decisions ledger with veto windows, worktree-isolated slice implementers behind frozen contracts, verification tiers, independent review, budget and money guards, a project survey and dispatcher, and an intake pipeline for requests typed in chat. It is listed in this marketplace and installed from its own repository:
+The packs say how to do each engineering thing. [`sliceworks`](https://github.com/sudo-sane/sliceworks) is the development life cycle they run inside: milestones with ten phases (spark, discover, decide, design, plan, build, accept, release, operate, learn), one ledger of checkable rows, a decisions ledger with veto windows, worktree-isolated slice implementers behind frozen contracts, verification tiers, independent review, budget and money guards, a project survey and dispatcher, and an intake pipeline for requests typed in chat. It is listed in this marketplace and installed from its own repository:
 
 ```bash
-/plugin marketplace add glotyuids/engineering-skills
+/plugin marketplace add sudo-sane/engineering-skills
 /plugin install sliceworks@engineering-skills
 /sliceworks:start
 ```
@@ -46,7 +46,7 @@ Its survey detects which packs a project has installed and recommends the rest f
 
 Say this to Claude Code, Codex, Cursor, or any agent with file access:
 
-> Use github.com/glotyuids/engineering-skills and install the **infra** and
+> Use github.com/sudo-sane/engineering-skills and install the **infra** and
 > **cloud-yandex** packs into this project.
 
 Other phrasings that work: *"take the go package from …"*, *"set this project up with the
@@ -69,7 +69,7 @@ You are installing packs from this library into the user's project. Do this:
    from `toolPaths` (project scope: `.claude/skills/`, `.agents/skills/`). Copy whole
    directories — `SKILL.md` plus any `references/`. Use `git clone` if you have a shell,
    otherwise fetch raw files from
-   `https://raw.githubusercontent.com/glotyuids/engineering-skills/main/<path>`.
+   `https://raw.githubusercontent.com/sudo-sane/engineering-skills/main/<path>`.
 4. **Copy the agents.** If the pack has `agents` and the target tool has a non-null
    `agents` path, copy `<agentPath>/<agent>.md` there. Codex, Copilot and Gemini have no
    subagents — skip them silently.
@@ -97,7 +97,7 @@ Do not install `lang-ru` unless the project ships Russian-language UI or content
 ### Option 2 — Claude Code plugin marketplace
 
 ```bash
-/plugin marketplace add glotyuids/engineering-skills
+/plugin marketplace add sudo-sane/engineering-skills
 ```
 
 Then install packs individually — `/plugin install infra@engineering-skills`,
@@ -107,7 +107,7 @@ and agents. `/plugin install sliceworks@engineering-skills` installs the life cy
 ### Option 3 — script
 
 ```bash
-git clone https://github.com/glotyuids/engineering-skills && cd engineering-skills
+git clone https://github.com/sudo-sane/engineering-skills && cd engineering-skills
 ./scripts/install.sh ~/path/to/project --packs infra,cloud-yandex --tools claude,codex
 ```
 
@@ -131,7 +131,7 @@ Settings → Skills.
 Installed copies carry `metadata.source` and `metadata.version`, so an agent can tell which
 of them are behind the library. Say this to your agent:
 
-> Update the skills installed from github.com/glotyuids/engineering-skills in this project
+> Update the skills installed from github.com/sudo-sane/engineering-skills in this project
 > to the library's current versions.
 
 Other phrasings that work: *"bring the installed packs up to date"*, *"check whether our
@@ -145,16 +145,18 @@ You are updating skills that were previously installed from this library. Do thi
 1. **Find what is installed.** Search every tool skills directory in the project
    (`.claude/skills/`, `.agents/skills/`, `.cursor/skills/`, and any other path listed under
    `toolPaths` in `manifest.json`) for `SKILL.md` files whose frontmatter carries
-   `metadata.source: glotyuids/engineering-skills`. Record each skill's name, directory and
-   `metadata.version`. Skills without that source line — including the project's own
+   `metadata.source: sudo-sane/engineering-skills`, or `glotyuids/engineering-skills` (the
+   owner's former account name, stamped on copies installed before the rename; same library).
+   Record each skill's name, directory and `metadata.version`. Skills without that source line — including the project's own
    `<skill>-project` delta skills — are not yours to touch.
 2. **Get the current library.** `git clone` it into a temporary directory if you have a
    shell (or pull an existing clone); otherwise fetch `manifest.json` and each needed file
-   from `https://raw.githubusercontent.com/glotyuids/engineering-skills/main/<path>`.
+   from `https://raw.githubusercontent.com/sudo-sane/engineering-skills/main/<path>`.
    `manifest.json` maps each skill name to its pack and `skillPath`.
 3. **Classify each installed skill before changing anything.** With a clone, run
    `scripts/check-drift.sh <project>` and use its verdicts; without one, compare
-   `metadata.version` and, where equal, the file contents:
+   `metadata.version` and, where equal, the file contents with a former `glotyuids` source
+   line read as `sudo-sane`:
    - **IN SYNC** — identical to the library: leave it.
    - **STALE** — the library version is newer: replace it (step 4).
    - **MODIFIED** — same version, different content: it was hand-edited locally. **Do not

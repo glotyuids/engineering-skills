@@ -3,7 +3,7 @@ name: documentation-standards
 description: What gets documented, where it lives, and the discipline that keeps documents true — the docs/ tree, the change-type-to-document routing table, the ADR contract (NNNN-kebab-title.md with Status/Date/Context/Decision/Consequences, amended never rewritten), the consolidated-index pattern, the planned/flag-gated/legacy/dropped status markers, the KNOWN_ISSUES honest-status pattern, and the rule that a behaviour change and its canonical-doc edit ship in the same commit. Use when creating or reorganising a docs tree, writing or amending an ADR, deciding where a change gets documented, writing a runbook or postmortem, recording a known gap honestly, auditing docs against code, or reviewing a change for a missing doc edit. Trigger phrases: "write an ADR", "where does this go in docs", "the docs are out of date", "docs drift", "add a runbook", "postmortem", "known issues", "is this shipped or planned", "document this decision".
 license: Apache-2.0
 metadata:
-  source: glotyuids/engineering-skills
+  source: sudo-sane/engineering-skills
   version: 0.1.1
 ---
 

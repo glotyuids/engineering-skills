@@ -3,7 +3,7 @@ name: mcp-server-authoring
 description: Design and ship a Model Context Protocol (MCP) server that agents use well — whether a server beats a CLI or a library, choosing the primitive (tools for actions, resources for readable context, prompts for user-invoked flows), a small well-named tool surface whose descriptions are the whole interface, validated input schemas, outputs shaped for a model rather than a human, errors that tell the agent how to recover, destructive operations gated behind explicit confirmation, idempotency, pagination and state handles under a stateless protocol, stdio versus HTTP transports, authorization and never taking a credential as a tool argument, versioning the tool surface, and testing against a real agent loop. Use when writing or reviewing an MCP server, adding or renaming a tool, writing a tool description or input schema, deciding tool versus resource versus prompt, or asking "should this be an MCP server", "why does the model keep calling the wrong tool", "how do I authenticate an MCP server".
 license: Apache-2.0
 metadata:
-  source: glotyuids/engineering-skills
+  source: sudo-sane/engineering-skills
   version: 0.1.0
 ---
 

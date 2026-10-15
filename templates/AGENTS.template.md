@@ -50,7 +50,7 @@ index, not a summary.
 
 ## Installed skills
 
-Skills installed from `glotyuids/engineering-skills` cover the shared patterns. This file
+Skills installed from `sudo-sane/engineering-skills` cover the shared patterns. This file
 carries only what is specific to this repository. Do not copy skill content in here, and
 do not hand-edit installed skills — fix them upstream and reinstall.
 

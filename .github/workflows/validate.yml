@@ -19,6 +19,9 @@ jobs:
       - name: Validate skills (spec, manifest, content policy)
         run: ./scripts/validate.sh
 
+      - name: Check the drift checker
+        run: ./scripts/test-check-drift.sh
+
       - name: Check the installer runs
         run: |
           mkdir -p /tmp/probe/.claude

@@ -3,7 +3,7 @@ name: go-conventions
 description: Service-internal layout, the clean-architecture dependency rule, default library set, go.mod/monorepo mechanics, per-subject data ownership, configuration versus authority-bearing policy, error handling and the verification gate for Go services. Use when writing or reviewing Go code, adding a package or an adapter, choosing a Go library, wiring dependencies in the composition root, writing a repository or a sentinel error, setting up go.mod and replace directives in a monorepo, or when asked "where does this file go", "what is our Go layout", "which router/logger/Postgres driver do we use", "how do we scope queries per user", "can I add this dependency", "is this backend work done", "where does the rules engine go", "is this config or policy", "can domain import the generated types", or "how does the daemon get its secret".
 license: Apache-2.0
 metadata:
-  source: glotyuids/engineering-skills
+  source: sudo-sane/engineering-skills
   version: 0.1.2
 ---
 

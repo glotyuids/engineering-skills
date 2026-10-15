@@ -3,7 +3,7 @@ name: postgres-patterns
 description: Schema, indexing, query, JSONB, transaction and ownership patterns for PostgreSQL behind a service — naming and type conventions, surrogate vs natural keys, soft versus hard delete, always-parameterized SQL, what to index and in which column order, partial and covering indexes, spotting N+1 and OFFSET pagination, JSONB guards, short transactions and lock ordering, work-queue patterns, connection-pool sizing against the MANAGED_PG connection limit, row-level security versus repository-level scoping, enumerating owners under forced row security, rebuildable versus operational tables, and the diagnostic queries for slow queries, unused indexes and blocking locks. Use when the user says "design this table", "review this schema", "why is this query slow", "add an index", "we are getting deadlocks", "too many connections", "how do we scope queries per user", "should this column be JSONB", "fix the N+1", "the query returns no rows in production", or when reviewing SQL before it ships.
 license: Apache-2.0
 metadata:
-  source: glotyuids/engineering-skills
+  source: sudo-sane/engineering-skills
   version: 0.1.2
 ---
 

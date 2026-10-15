@@ -3,7 +3,7 @@ name: react-conventions
 description: Component boundaries, state placement, data fetching, effects, forms, lists, memoisation, styling and accessibility for a React or React Native application, plus the local verification gate. Use when writing or reviewing React or React Native code, adding a component, screen or hook, deciding where a piece of state belongs, wiring a data fetch, writing or debugging a useEffect, building a form, handling loading and error states, splitting platform-specific code, or when asked "where does this component go", "should this be local state or context", "why does this re-render forever", "why does this fetch in a loop", "do I need useMemo here", "container or presentational", "how do we fetch data on this screen", "where do the design tokens go", or "is this frontend work done".
 license: Apache-2.0
 metadata:
-  source: glotyuids/engineering-skills
+  source: sudo-sane/engineering-skills
   version: 0.1.1
 ---
 

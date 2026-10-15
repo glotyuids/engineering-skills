@@ -30,4 +30,4 @@ The `database-reviewer` agent in this pack defers to these skills for detail; wi
 
 Install: `/plugin install database@engineering-skills`, or
 `./scripts/install.sh <project> --packs database`, or ask your agent to install the
-**database** pack from `glotyuids/engineering-skills`.
+**database** pack from `sudo-sane/engineering-skills`.

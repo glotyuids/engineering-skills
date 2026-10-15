@@ -26,4 +26,4 @@ companion pack absent; cross-pack references are written to degrade gracefully.
 
 Install: `/plugin install writing@engineering-skills`, or
 `./scripts/install.sh <project> --packs writing`, or ask your agent to install the
-**writing** pack from `glotyuids/engineering-skills`.
+**writing** pack from `sudo-sane/engineering-skills`.

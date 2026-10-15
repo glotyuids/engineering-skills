@@ -3,7 +3,7 @@ name: purposeful-text-writing
 description: The generic method for writing any user-facing string — identify the surface, the reader and the job before drafting, then draft and cut. Covers interface copy, button labels, form labels, errors, empty states, onboarding, notifications, headlines, help text and prompts, plus writing for translation. Use when the user says "write the copy for this", "what should this button say", "reword this error message", "fill in this empty state", "rewrite this microcopy", "review the UI strings", "this text feels like filler", "write the onboarding screens", "draft a notification", "make this shorter", or whenever a change ships user-visible text. Apply this first; layer the product's own voice, vocabulary and banned words on top afterwards from a local product skill.
 license: Apache-2.0
 metadata:
-  source: glotyuids/engineering-skills
+  source: sudo-sane/engineering-skills
   version: 0.1.0
 ---
 

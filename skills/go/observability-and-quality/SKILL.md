@@ -3,7 +3,7 @@ name: observability-and-quality
 description: What a service must expose so a failure can be seen and explained — liveness vs readiness and why liveness must never check dependencies, structured logging with a correlation id propagated through the whole call chain, log levels, the never-log-secrets-or-personal-data rule and connection-string redaction, making silent failures observable, the metric set worth having (request rate/latency/errors, dependency latency, queue depth, consumer lag) with cardinality discipline, the linter set with the approved answers to gosec findings on CLIs and test code, health without an orchestrator, and the test policy. Use when adding a health endpoint, wiring a logger or metrics, or when the user says "the pod keeps restarting", "readiness is flapping", "we can't tell what happened in prod", "the metrics backend fell over", "what should we log", "what metrics do we need", "which linters do we run", "add tests for this", "why did this fail silently", or when reviewing observability before a first deploy.
 license: Apache-2.0
 metadata:
-  source: glotyuids/engineering-skills
+  source: sudo-sane/engineering-skills
   version: 0.1.2
 ---
 

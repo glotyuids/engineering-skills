@@ -3,7 +3,7 @@ name: ru-ui-strings
 description: Writing and engineering Russian interface strings, in English. Covers the gendered past tense — any sentence about what the user did misgenders half of them unless phrased neutrally, a constraint that must also go into the prompt for model-generated text; the informal/formal address choice («ты» vs «вы») as one configuration point; the three integer plural categories with the mod-10/mod-100 rule and the 11–14 exception (a two-branch ternary is a bug); a binding glossary and enum-agreement traps; interpolated values landing in a fixed grammatical case; string expansion versus English; sentence case instead of Title Case; guillemets, em dashes and the optional letter «ё»; and a native review pass before launch. Use when the user says "add Russian", "translate the UI to Russian", "Russian copy", "RU strings", "why does the app call me he", "gendered forms", "«ты» or «вы»", "Russian plural forms", "the Russian reads machine-translated", or when writing any user-facing Russian string.
 license: Apache-2.0
 metadata:
-  source: glotyuids/engineering-skills
+  source: sudo-sane/engineering-skills
   version: 0.1.1
 ---
 

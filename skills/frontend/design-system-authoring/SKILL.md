@@ -3,7 +3,7 @@ name: design-system-authoring
 description: Author and maintain a design system that code actually follows — token files as the single source of truth, component specs that prescribe intent and usage constraints instead of props, and a thin loader skill fronting a large asset directory — then audit the built app for drift against it. Use when asked to "create a design system", "write design tokens", "document our components", "write a component spec", "set up a design skill for this brand", "make the app match the mockups", "audit the UI for design drift", "find hardcoded colours", "why doesn't the build look like the prototype", "review our design consistency", or when adding a component to an existing system, reviewing UI code against it, or reporting where a shipped build has quietly departed from its intended look.
 license: Apache-2.0
 metadata:
-  source: glotyuids/engineering-skills
+  source: sudo-sane/engineering-skills
   version: 0.1.0
 ---
 

@@ -3,7 +3,7 @@ name: database-migrations
 description: How to write, run and recover schema migrations without downtime or a stuck deploy — file naming and the up/down pair, one logical change per migration, forward-only in production, statements written so a partial re-run is safe, the JSONB null/scalar trap, lock-avoidance on large tables (concurrent indexes, nullable column then batched backfill then constraint), expand/contract for renames during a rolling deploy, migrations as a pre-upgrade hook Job, and the recovery procedure when a migration job times out and leaves the version tracker dirty. Use when the user says "add a migration", "write the up/down SQL", "alter this table", "add a column/index/constraint", "rename a column", "backfill this data", "the migration job timed out", "migrations are dirty", "schema_migrations is stuck", "the deploy is blocked on migrations", "how do I roll back a migration", "this migration locked the table", "create a role in a migration", "the policy fails on re-run", or when reviewing a migration before it ships.
 license: Apache-2.0
 metadata:
-  source: glotyuids/engineering-skills
+  source: sudo-sane/engineering-skills
   version: 0.1.2
 ---
 

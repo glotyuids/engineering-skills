@@ -1,7 +1,7 @@
 {
   "$schema": "./schema/manifest.schema.json",
   "name": "engineering-skills",
-  "repo": "glotyuids/engineering-skills",
+  "repo": "sudo-sane/engineering-skills",
   "version": "0.1.0",
   "license": "Apache-2.0",
   "description": "Tool-agnostic engineering skills and guidelines for AI coding agents.",

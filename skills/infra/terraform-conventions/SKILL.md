@@ -3,7 +3,7 @@ name: terraform-conventions
 description: Vendor-neutral Terraform discipline - one module per infrastructure concern, a root composition per environment, remote state in the TFSTATE_BACKEND capability with locking and an out-of-band bootstrap, credentials sourced from a git-ignored env file, and a plan-before-apply ritual that reads every destroy/replace line on a managed data store. Use when writing or reviewing Terraform, adding a module or a managed resource (database, bucket, registry, vault, node group), wiring Make targets around terraform init/plan/apply/output/destroy, migrating local state to a remote backend, refactoring module paths with moved blocks, or investigating drift. Trigger phrases - "terraform plan", "terraform apply", "add a module", "provision a database", "tfstate", "remote state", "state locking", "backend.tf", "tfvars", "terraform output", "moved block", "state drift", "why does the plan want to destroy", "terraform-init/plan/apply target".
 license: Apache-2.0
 metadata:
-  source: glotyuids/engineering-skills
+  source: sudo-sane/engineering-skills
   version: 0.1.0
 ---
 

@@ -23,4 +23,4 @@ This is the only pack allowed to name a cloud vendor. If you add another cloud, 
 
 Install: `/plugin install cloud-yandex@engineering-skills`, or
 `./scripts/install.sh <project> --packs cloud-yandex`, or ask your agent to install the
-**cloud-yandex** pack from `glotyuids/engineering-skills`.
+**cloud-yandex** pack from `sudo-sane/engineering-skills`.

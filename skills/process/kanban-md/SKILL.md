@@ -3,7 +3,7 @@ name: kanban-md
 description: Run a project board that lives in the repository as markdown files — one task per file with YAML frontmatter — so agents and humans share one task list. Use when the user mentions the board, kanban, backlog, sprint, task, ticket, work item, priority, blocker, WIP limit, standup, triage or project metrics, or asks to create, list, show, claim, pick, start, update, block, hand off, complete, archive or delete a task. Triggers on "what should I work on next", "what's on the board", "show the backlog", "add a task for this", "file a bug on the board", "move it to in-progress", "mark it done", "is anything blocked", "park this and hand it off", "update the task with what we found", "plan the sprint", "run standup".
 license: Apache-2.0
 metadata:
-  source: glotyuids/engineering-skills
+  source: sudo-sane/engineering-skills
   version: 0.1.1
 ---
 

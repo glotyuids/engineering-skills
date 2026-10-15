@@ -3,7 +3,7 @@ name: ru-en-tone-transfer
 description: How to move product copy between Russian and English when a literal translation would be wrong — declare one source language and treat the other as an adaptation, handle the irony asymmetry (a register that reads gently dry in Russian reads noticeably colder in English), the loanword register trap (an ordinary English word often reads as jargon once borrowed into Russian), names and idioms that do not survive translation, and the reverse direction where English-source products inherit Russian formality defaults and pushy-marketing register. Use when the user says "translate this copy into Russian", "localise the landing page", "the English version sounds off", "why does this read so cold in English", "adapt these UI strings for the Russian market", "make the English version match", "review this RU/EN string pair", or whenever a change ships the same message in both languages.
 license: Apache-2.0
 metadata:
-  source: glotyuids/engineering-skills
+  source: sudo-sane/engineering-skills
   version: 0.1.0
 ---
 

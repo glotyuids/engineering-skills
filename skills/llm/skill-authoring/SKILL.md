@@ -3,7 +3,7 @@ name: skill-authoring
 description: Author, review and measure agent skills — spec-conformant SKILL.md frontmatter, a description engineered so the agent loads the skill at the right moment, a body sized for progressive disclosure, portable phrasing that survives a partial install, and assertion-based evals run with-skill versus without-skill. Use when creating a new skill, splitting an oversized SKILL.md into references, reviewing or fixing someone else's skill, or when the user says "write a skill", "author a SKILL.md", "the skill never triggers", "it loads when it shouldn't", "fix the description", "make this skill portable", "add evals for this skill", "benchmark the skill", or "does the skill actually help". Also use whenever a SKILL.md, an evals/evals.json or a skills/ directory is being read or edited in the session, even if the word "skill" is never said. For designing the tool server a skill drives, use mcp-server-authoring instead.
 license: Apache-2.0
 metadata:
-  source: glotyuids/engineering-skills
+  source: sudo-sane/engineering-skills
   version: 0.1.0
 ---
 

@@ -3,7 +3,7 @@ name: review-plan
 description: Systematic review of an implementation plan before any code is written — gather read-only evidence from the repo and the running system to test the plan's assumptions, check it across four dimensions (correctness and logic, architecture and principles, missing parts, ambiguity and double meaning), rank every finding in a severity table, and batch all open questions, each with researched options and a recommendation, into one block at the end. Use when the user says "review the plan", "validate the approach", "check this plan for issues", "is this plan complete", "poke holes in this", "review before implementation", when a plan or design doc is pasted for critique, or when an agent has finished planning and is about to start executing. Language- and stack-neutral. Reviews plans; never implements them.
 license: Apache-2.0
 metadata:
-  source: glotyuids/engineering-skills
+  source: sudo-sane/engineering-skills
   version: 0.1.0
 ---
 

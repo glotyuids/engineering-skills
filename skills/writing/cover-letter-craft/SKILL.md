@@ -3,7 +3,7 @@ name: cover-letter-craft
 description: The craft model for a job-application letter — what the reader is actually deciding, the strategy done before any prose (diagnose the fit, choose one controlling idea, select two or three proofs, bridge gaps instead of confessing them), the rules for opening, evidence, length and close, honesty treated as the persuasive move rather than a constraint, the personalisation depth ladder, the intake that sets the quality ceiling, and how to tell whether any of it works. Use when asked to "write a cover letter", "help with my application letter", "improve/rewrite this cover letter", "why is my letter getting no replies", "what do I say about my career gap", "how long should a cover letter be", "make this sound less generic / less AI", "coach me through this application", or when building or reviewing a system that drafts application letters.
 license: Apache-2.0
 metadata:
-  source: glotyuids/engineering-skills
+  source: sudo-sane/engineering-skills
   version: 0.1.0
 ---
 

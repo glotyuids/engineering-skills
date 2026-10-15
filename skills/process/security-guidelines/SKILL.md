@@ -3,7 +3,7 @@ name: security-guidelines
 description: The application-security rules to follow while writing code — authorisation enforced at the data access layer with the subject taken from the verified credential, allowlist validation at the boundary, output encoding at every interpreter crossing, TLS with certificate verification, deny-by-default and fail-closed behaviour, rate limits and resource bounds, dependency scanning, and the personal-data denylist for logs, errors, analytics and third parties. Use when adding an endpoint, handler, query, job or webhook that touches user-owned data, handling uploads or external input, shelling out, building a query, deciding what to log, adding a dependency, or acting on a security finding. Triggers on "is this secure", "can another user read this", "IDOR", "SQL injection", "sanitise this input", "what am I allowed to log", "PII in logs", "rate limit this endpoint", "certificate verification fails", "we leaked a token", "the API puts the token in the URL", "is this chat user really the owner".
 license: Apache-2.0
 metadata:
-  source: glotyuids/engineering-skills
+  source: sudo-sane/engineering-skills
   version: 0.1.1
 ---
 

@@ -156,7 +156,7 @@ if [ "$USER_SCOPE" -eq 0 ] && [ "$DRY_RUN" -eq 0 ]; then
     echo "  + AGENTS.md created from template — fill in the Project context block"
   fi
   if ! grep -q '^Packs:' "$TARGET/AGENTS.md" 2>/dev/null; then
-    printf '\nPacks: %s (from glotyuids/engineering-skills)\n' "$PACKS" >> "$TARGET/AGENTS.md"
+    printf '\nPacks: %s (from sudo-sane/engineering-skills)\n' "$PACKS" >> "$TARGET/AGENTS.md"
   fi
   case ",$TOOLS," in
     *,claude,*)

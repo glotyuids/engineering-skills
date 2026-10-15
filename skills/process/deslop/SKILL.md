@@ -3,7 +3,7 @@ name: deslop
 description: Strip machine-written slop out of a change — comments that restate the code, defensive handlers that swallow errors, unused abstraction layers, invented configuration options, "enhanced"/"comprehensive" naming, redundant re-validation, tests that assert the implementation instead of the behaviour — and decide honestly whether repeated logic should be extracted, using a Reusability Gate that forbids speculative abstractions and a rule that SOLID beats DRY. Use when the user says "deslop", "clean up this branch", "remove the AI slop", "this reads like it was generated", "too many comments", "why is there a wrapper around this", "remove duplication", "DRY this up", "extract common code", "extract reusable functions", "find duplication", or before opening a pull request on agent-written code.
 license: Apache-2.0
 metadata:
-  source: glotyuids/engineering-skills
+  source: sudo-sane/engineering-skills
   version: 0.1.0
 ---
 

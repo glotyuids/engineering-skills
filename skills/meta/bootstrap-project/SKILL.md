@@ -3,7 +3,7 @@ name: bootstrap-project
 description: Set up a repository so coding agents work well in it — create AGENTS.md with a filled project-context block, the CLAUDE.md pointer, the docs/ tree with ADR, runbook and postmortem templates, a root Makefile, the secrets contract and .gitignore, and record which skill packs are installed. Use when starting a new repository, when asked to "bootstrap this project", "set up agent instructions", "initialise the docs structure", "add AGENTS.md", "onboard this repo to the skills library", or when an existing repo has no agent guide at all.
 license: Apache-2.0
 metadata:
-  source: glotyuids/engineering-skills
+  source: sudo-sane/engineering-skills
   version: 0.1.0
 ---
 

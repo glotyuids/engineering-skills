@@ -25,4 +25,4 @@ companion pack absent; cross-pack references are written to degrade gracefully.
 
 Install: `/plugin install llm@engineering-skills`, or
 `./scripts/install.sh <project> --packs llm`, or ask your agent to install the
-**llm** pack from `glotyuids/engineering-skills`.
+**llm** pack from `sudo-sane/engineering-skills`.

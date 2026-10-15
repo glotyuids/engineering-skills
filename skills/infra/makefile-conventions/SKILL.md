@@ -3,7 +3,7 @@ name: makefile-conventions
 description: The root Makefile as the single entrypoint — the standard target contract (help, build, test, lint, fmt, check, tidy, clean plus the deploy and ops set) that other skills, docs and CI depend on, self-documenting help harvested from `## target: description` comments, module fan-out discovered from the filesystem instead of hand-listed, environment parameterization with a safe default and separately named production targets, and per-service sub-Makefiles for the inner loop. Use when adding or renaming a Make target, writing a root or per-service Makefile, or moving a repeated command out of shell history. Trigger phrases - "add a make target", "make help is out of date", "a new module is not being built", "make build skips my service", "make build does nothing", "make deploy hit the wrong environment", "standardize our Makefiles". Language- and vendor-neutral - `make build` produces the artifacts, whatever they are.
 license: Apache-2.0
 metadata:
-  source: glotyuids/engineering-skills
+  source: sudo-sane/engineering-skills
   version: 0.1.0
 ---
 

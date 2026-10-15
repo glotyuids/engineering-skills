@@ -3,7 +3,7 @@ name: llm-pipeline-rules
 description: Non-negotiable rules for a production pipeline built on a language model — the model classifies and the code decides, all model output and all user content is untrusted, structured output is schema-validated and fails closed after a bounded, declared number of repairs (default one), evidence is extracted before anything is written, prompt packs carry a dated version so a regression is bisectable, every call goes through one model boundary with a budget, a timeout and an idempotency key (kept off the wire unless the provider honours it), and logs carry prompt hashes rather than prompt bodies. Use when adding or changing an LLM call, designing a generation or agent pipeline, editing prompts and templates, adding retrieval or a judge stage, wiring an LLM proxy or router, or swapping models. Trigger phrases "add an LLM step", "change this prompt", "prompt injection", "the model returned invalid JSON", "switch to another model", "why did the output change", "add a guardrail", "the LLM bill blew up".
 license: Apache-2.0
 metadata:
-  source: glotyuids/engineering-skills
+  source: sudo-sane/engineering-skills
   version: 0.1.2
 ---
 

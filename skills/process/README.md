@@ -30,4 +30,4 @@ companion pack absent; cross-pack references are written to degrade gracefully.
 
 Install: `/plugin install process@engineering-skills`, or
 `./scripts/install.sh <project> --packs process`, or ask your agent to install the
-**process** pack from `glotyuids/engineering-skills`.
+**process** pack from `sudo-sane/engineering-skills`.

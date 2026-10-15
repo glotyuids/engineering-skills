@@ -26,4 +26,4 @@ companion pack absent; cross-pack references are written to degrade gracefully.
 
 Install: `/plugin install frontend@engineering-skills`, or
 `./scripts/install.sh <project> --packs frontend`, or ask your agent to install the
-**frontend** pack from `glotyuids/engineering-skills`.
+**frontend** pack from `sudo-sane/engineering-skills`.

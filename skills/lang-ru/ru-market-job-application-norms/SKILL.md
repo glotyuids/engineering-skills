@@ -3,7 +3,7 @@ name: ru-market-job-application-norms
 description: How job applications actually work in the Russian-language market and where habits from another market backfire — the default register and how it loosens by channel, the instruction-as-gate phenomenon where the application field is a compliance test before it is an essay, the real channel mix (job portals and their in-app chat, tech boards, messaging apps) versus applicant-tracking plus email plus professional network, personal-data and photo norms, money and terms, humour, and honest-bridge rewrite patterns. Use when writing or reviewing an application message for a Russian-language posting, when a user says «как написать сопроводительное письмо» or asks about «отклик на вакансию», when adapting a letter written for a US or UK application to the Russian market or the reverse, when a posting hides an instruction in the letter field, or when building a product that generates application messages for both markets.
 license: Apache-2.0
 metadata:
-  source: glotyuids/engineering-skills
+  source: sudo-sane/engineering-skills
   version: 0.1.0
 ---
 

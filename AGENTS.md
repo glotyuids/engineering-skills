@@ -20,7 +20,7 @@ name: skill-name          # MUST equal the directory name; a-z0-9- only
 description: What it does + when to use it, with trigger phrases. Max 1024 chars.
 license: Apache-2.0
 metadata:
-  source: glotyuids/engineering-skills
+  source: sudo-sane/engineering-skills
   version: 0.1.0
 ---
 ```

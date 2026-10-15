@@ -3,7 +3,7 @@ name: bilingual-product-architecture
 description: Structure a product and its agent skills to work in two languages at once — separate the conversation locale (the language the system talks to the user in) from the artifact locale (the language the produced deliverable is written in), declare a key-set source of truth that may differ from the default display locale, fail the build on catalogue gaps, gate generated text so it stays monolingual in both directions, and write skill descriptions that fire in either language. Use when the user says "make it bilingual", «сделай двуязычным», "add Russian", "the bot replied in the wrong language", "the output is half English", "which language should the result be in", "mixed-language output", "a missing key shipped English to Russian users", or "my skill never triggers when I write in Russian". Also use whenever a second locale catalogue, a locale parameter on a prompt template, or a language-detection step appears in the work.
 license: Apache-2.0
 metadata:
-  source: glotyuids/engineering-skills
+  source: sudo-sane/engineering-skills
   version: 0.1.0
 ---
 

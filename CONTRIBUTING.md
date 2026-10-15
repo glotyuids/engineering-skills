@@ -14,7 +14,7 @@ agents alike. This page is the short version plus the PR checklist.
    `skills/cloud/<vendor>/`. See the three-layer rule in AGENTS.md.
 5. Update [`manifest.json`](manifest.json) in the same commit if you add, rename or
    remove a skill, and add a [CHANGELOG](CHANGELOG.md) entry.
-6. Run `./scripts/validate.sh`.
+6. Run `./scripts/validate.sh`, and `./scripts/test-check-drift.sh` if you touched `check-drift.sh`.
 
 ## PR checklist
 

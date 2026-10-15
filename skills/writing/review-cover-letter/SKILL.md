@@ -3,7 +3,7 @@ name: review-cover-letter
 description: Score an existing cover letter or short job-application message against a coded rubric — instruction compliance, tailoring, evidence, length-for-channel, register, CTA, honesty — and emit a fix-ready JSON scorecard with per-rule findings, a claim audit and an ordered fix brief. Reviews only; it never writes or rewrites the letter. Use when the user says "review my cover letter", "score this application message", "critique this letter", "is this ready to send", "why does this letter get rejected", "audit the letters our generator produces", "grade this against the rubric", or when building review test-data over a corpus of (letter, posting, CV) cases. Handles Russian- and English-language letters. A missing posting or CV degrades the review into explicit UNVERIFIABLE findings, never into silent passes.
 license: Apache-2.0
 metadata:
-  source: glotyuids/engineering-skills
+  source: sudo-sane/engineering-skills
   version: 0.1.0
 ---
 

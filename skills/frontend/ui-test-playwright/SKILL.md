@@ -3,7 +3,7 @@ name: ui-test-playwright
 description: Build, extend or run a Playwright (@playwright/test) end-to-end suite for a web app, and automate design review on top of it (token compliance, geometry rules, visual regression, on-demand vision audit). Use when the user says "add a Playwright test for X", "extend the e2e suite to cover Y", "write a spec for the new feature", "test this flow end-to-end", "set up Playwright in this repo", "cover the editor in e2e", "our e2e suite is flaky", "find design inconsistencies", "automate design review", "check for colour drift / spacing drift", "visual regression", or asks for new coverage on an existing suite. Also use for ad-hoc browser verification through a browser-automation MCP when no suite exists yet — but prefer adding a spec once one does.
 license: Apache-2.0
 metadata:
-  source: glotyuids/engineering-skills
+  source: sudo-sane/engineering-skills
   version: 0.1.0
 ---
 

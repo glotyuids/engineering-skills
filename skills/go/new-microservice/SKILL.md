@@ -3,7 +3,7 @@ name: new-microservice
 description: End-to-end phased checklist for scaffolding, wiring and shipping a new backend service in a multi-service Go repo — bounded context and planning, storage choice, clean-architecture layout, go.mod replace directives, multi-stage Dockerfile, migration hygiene, chart values, deploy-pipeline registration, secrets, first-deploy failure recovery, verification and documentation. Use when the user says "add a new service", "create a microservice", "scaffold a service", "new backend service", "wire the service up for deploy", "why did my first deploy skip the install", "the migration job left schema_migrations dirty", "the pod crashes with unable to read CA file", or when deciding whether a new bounded context deserves its own service.
 license: Apache-2.0
 metadata:
-  source: glotyuids/engineering-skills
+  source: sudo-sane/engineering-skills
   version: 0.1.1
 ---
 

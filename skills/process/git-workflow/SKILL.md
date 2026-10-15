@@ -3,7 +3,7 @@ name: git-workflow
 description: Branching, commit hygiene, submodules, merge strategy and the git-state checks a deploy depends on. Use when committing, writing a commit message, staging changes, creating or naming a branch, pushing, merging or squash-merging a feature branch into the trunk, rebasing, resolving a push rejection or merge conflict, working in a repo that has git submodules, or checking whether the working tree is clean before a build or deploy. Triggers on "commit this", "write the commit message", "push it", "merge to main", "squash-merge", "the push was rejected", "the submodule is dirty", "detached HEAD", "should I force-push?", "can I amend that?", "why is the image tagged dirty", "clean up the branch before deploy".
 license: Apache-2.0
 metadata:
-  source: glotyuids/engineering-skills
+  source: sudo-sane/engineering-skills
   version: 0.1.0
 ---
 

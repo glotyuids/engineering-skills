@@ -5,7 +5,20 @@ All notable changes to this library. Versions follow the library `version` in
 
 ## [Unreleased]
 
+### Changed
+
+- The GitHub account was renamed from `glotyuids` to `sudo-sane`. Every `metadata.source`
+  stamp, plugin manifest author, install command, schema `$id` and link now names
+  `sudo-sane/engineering-skills`. Skill versions are unchanged: only the stamp moved.
+- `check-drift.sh` accepts `glotyuids/engineering-skills` as a former source: such copies are
+  this library, and a copy that differs from the library only in that stamp is **IN SYNC**
+  (with a note to reinstall to restamp), not MODIFIED. Hand edits and older versions under the
+  old stamp are still MODIFIED and STALE. The README update procedure says the same.
+
 ### Added
+
+- `scripts/test-check-drift.sh`: behaviour tests for the drift verdicts under both stamps; run
+  in CI.
 
 - Initial library: `core`, `process`, `infra`, `cloud-yandex`, `go`, `database`,
   `frontend`, `llm`, `writing`, `lang-ru` packs.

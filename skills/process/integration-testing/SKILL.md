@@ -3,7 +3,7 @@ name: integration-testing
 description: Integration and end-to-end tests that run against a real deployed environment, safely — the explicit opt-in gate, a dedicated least-privilege test identity whose credentials come from the secret manager, self-created test data with registered cleanup, marker values so orphans stay sweepable, keeping the suite out of the default unit-test path, an error→cause→fix triage table, and ephemeral test-owned dependencies that run ungated and fail rather than skip. Use when asked to run integration tests, add a smoke test against staging or production, verify a deployed service end to end, wire a CI job that talks to a shared environment, or troubleshoot 401/403, timeout and leftover-data failures in tests. Trigger phrases: "run the integration tests", "smoke test prod", "test against staging", "how do I get a token for the test", "why is my test getting 403", "the test left junk behind", "clean up the test data", "the tests need Postgres", "should the DB tests skip when Postgres is missing".
 license: Apache-2.0
 metadata:
-  source: glotyuids/engineering-skills
+  source: sudo-sane/engineering-skills
   version: 0.1.2
 ---
 

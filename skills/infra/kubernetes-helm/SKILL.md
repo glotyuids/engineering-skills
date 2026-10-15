@@ -3,7 +3,7 @@ name: kubernetes-helm
 description: Helm chart layout and Kubernetes workload conventions for services deployed to a managed cluster — one chart per service, the template inventory, values conventions, the plain-config vs secret-reference split, liveness/readiness probes, resource requests and limits, HPA and when not to use it, singleton/long-polling workloads, migrations as a pre-install/pre-upgrade hook Job, and pinning the kube-context on every invocation. Use when the user says "add a Helm chart", "write the deployment template", "why is the pod CrashLoopBackOff", "the release did not install", "set up autoscaling", "run migrations on deploy", "helm upgrade", "deploy the service to Kubernetes", or when reviewing a chart before its first deploy. Vendor-neutral — routing is the LB capability, image pull is REGISTRY, secret injection is SECRET_MANAGER, the database is MANAGED_PG.
 license: Apache-2.0
 metadata:
-  source: glotyuids/engineering-skills
+  source: sudo-sane/engineering-skills
   version: 0.1.0
 ---
 

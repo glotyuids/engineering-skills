@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://raw.githubusercontent.com/glotyuids/engineering-skills/main/schema/manifest.schema.json",
+  "$id": "https://raw.githubusercontent.com/sudo-sane/engineering-skills/main/schema/manifest.schema.json",
   "title": "engineering-skills manifest",
   "description": "Machine-readable pack index. The source of truth for the README catalog, install.sh, check-drift.sh, the plugin marketplace, and agent-driven installs.",
   "type": "object",

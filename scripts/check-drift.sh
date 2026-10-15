@@ -29,12 +29,22 @@ manifest = json.loads((lib / "manifest.json").read_text())
 search = [".claude/skills", ".agents/skills", ".cursor/skills", ".codex/skills",
           ".github/skills", "skills"]
 
+# The library's source stamp. Copies installed before the GitHub account was renamed carry
+# the former owner's name; they are the same library, and the stamp alone is not a change.
+SOURCE = "sudo-sane/engineering-skills"
+FORMER_SOURCES = ("glotyuids/engineering-skills",)
+
+def restamped(text):
+    for old in FORMER_SOURCES:
+        text = text.replace(f"source: {old}", f"source: {SOURCE}")
+    return text
+
 def version_of(text):
     m = re.search(r"^\s+version:\s*(\S+)", text, re.M)
     return m.group(1) if m else None
 
 def body_hash(path):
-    return hashlib.sha256(path.read_bytes()).hexdigest()[:12]
+    return hashlib.sha256(restamped(path.read_text()).encode()).hexdigest()[:12]
 
 # Index the library by skill name.
 library = {}
@@ -59,7 +69,7 @@ for base in search:
             continue
         seen.add(key)
         text = md.read_text()
-        if "glotyuids/engineering-skills" not in text:
+        if not any(s in text for s in (SOURCE,) + FORMER_SOURCES):
             rows.append((base, name, "UNKNOWN", "not from this library"))
             continue
         entry = library.get(name)
@@ -69,7 +79,8 @@ for base in search:
             continue
         inst_v, inst_h = version_of(text), body_hash(md)
         if inst_h == entry["hash"]:
-            rows.append((base, name, "IN SYNC", f"v{inst_v}"))
+            note = f"v{inst_v}" + (", former source stamp — reinstall to restamp" if restamped(text) != text else "")
+            rows.append((base, name, "IN SYNC", note))
         elif inst_v != entry["version"]:
             rows.append((base, name, "STALE", f"installed v{inst_v} < library v{entry['version']} — reinstall"))
             bad += 1

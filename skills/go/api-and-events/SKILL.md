@@ -3,7 +3,7 @@ name: api-and-events
 description: HTTP and asynchronous message contracts between services — versioned public routes and a separate internal path space, the internal API-key header and its mandatory strip at the edge, OpenAPI as the source of truth with generated clients, status codes and error bodies, pagination, idempotency keys (and update-id deduplication for polled feeds), contract versioning, and messaging rules (versioned event contracts, open versus closed contracts, the proto3 JSON traps, idempotent consumers, ack-after-durable, dead-letter handling, and when a broker is justified at all). Use when adding or changing an endpoint, writing or updating an OpenAPI spec, choosing a status code or error shape, paginating a list, making a POST retry-safe, breaking or versioning a contract, exposing an internal route, configuring the edge proxy, publishing or consuming an event, defining a message schema, or asking "should this be a queue", "why did we process this message twice", "what belongs in the dead-letter queue".
 license: Apache-2.0
 metadata:
-  source: glotyuids/engineering-skills
+  source: sudo-sane/engineering-skills
   version: 0.1.2
 ---
 

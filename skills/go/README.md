@@ -34,4 +34,4 @@ Pairs well with `infra` + a cloud pack (deployment) and `database` (storage). Ea
 
 Install: `/plugin install go@engineering-skills`, or
 `./scripts/install.sh <project> --packs go`, or ask your agent to install the
-**go** pack from `glotyuids/engineering-skills`.
+**go** pack from `sudo-sane/engineering-skills`.

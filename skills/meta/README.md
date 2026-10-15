@@ -33,4 +33,4 @@ The agents assume nothing about your stack. `code-reviewer` defers to a language
 
 Install: `/plugin install core@engineering-skills`, or
 `./scripts/install.sh <project> --packs core`, or ask your agent to install the
-**core** pack from `glotyuids/engineering-skills`.
+**core** pack from `sudo-sane/engineering-skills`.

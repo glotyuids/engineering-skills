@@ -28,4 +28,4 @@ Do not install this pack unless the product actually ships Russian content.
 
 Install: `/plugin install lang-ru@engineering-skills`, or
 `./scripts/install.sh <project> --packs lang-ru`, or ask your agent to install the
-**lang-ru** pack from `glotyuids/engineering-skills`.
+**lang-ru** pack from `sudo-sane/engineering-skills`.
