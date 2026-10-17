@@ -94,7 +94,7 @@
         "ref": "main"
       },
       "description": "The development life cycle the packs run inside: milestones with ten phases from spark to learn, one ledger of checkable rows, a decisions ledger, worktree-isolated slice implementers behind frozen contracts, verification tiers, independent review, budget and money guards, a survey and dispatcher, and an intake pipeline for requests. Installed from its own repository.",
-      "version": "0.8.2",
+      "version": "0.8.3",
       "license": "Apache-2.0",
       "category": "engineering",
       "homepage": "https://github.com/sudo-sane/sliceworks"
